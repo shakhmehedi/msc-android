@@ -1,5 +1,6 @@
 package uk.ac.uws.msc.shakh.model;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -10,7 +11,7 @@ public class Category {
     private int mId;
     private String mName;
 
-    private List<Product> mProducts;
+    private List<Product> mProducts = new ArrayList<>();
 
     public Category(){
 
