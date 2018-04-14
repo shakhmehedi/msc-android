@@ -22,6 +22,10 @@
         <activity
             android:name="uk.ac.uws.msc.shakh.ProductListActivity"
             android:label="@string/title_activity_product_list"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name="uk.ac.uws.msc.shakh.ProductDetailActivity"
+            android:label="@string/title_activity_product_detail"
             android:theme="@style/AppTheme.NoActionBar"></activity>
     </application>
 

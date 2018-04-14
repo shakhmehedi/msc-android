@@ -1,6 +1,7 @@
 package uk.ac.uws.msc.shakh.adapter;
 
 import android.content.Context;
+import android.content.Intent;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,6 +11,7 @@ import android.widget.TextView;
 
 import java.util.List;
 
+import uk.ac.uws.msc.shakh.ProductDetailActivity;
 import uk.ac.uws.msc.shakh.model.Product;
 import uk.ac.uws.msc.shakh.shakhmsc.R;
 
@@ -41,6 +43,7 @@ public class ProductRecyclerAdapter extends RecyclerView.Adapter <ProductRecycle
         holder.getProductName().setText(product.getName());
         holder.getProductPrice().setText(Double.toString(product.getPrice()));
         holder.getProductPriceCurrency().setText("£");
+        holder.setCurrentPosition(position);
         //ToDo handle image
     }
 
@@ -54,6 +57,7 @@ public class ProductRecyclerAdapter extends RecyclerView.Adapter <ProductRecycle
         private final TextView mProductPrice;
         private final TextView mProductPriceCurrency;
         private final ImageView mProductThumb;
+        private int mCurrentPosition;
 
         public ViewHolder(View itemView) {
             super(itemView);
@@ -63,7 +67,14 @@ public class ProductRecyclerAdapter extends RecyclerView.Adapter <ProductRecycle
             mProductPriceCurrency = (TextView) itemView.findViewById(R.id.text_product_price_currency);
             mProductThumb = (ImageView) itemView.findViewById(R.id.image_view_product_thumb);
 
-
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent intent = new Intent(mContext, ProductDetailActivity.class);
+                    intent.putExtra(ProductDetailActivity.PRODUCT_POSITION, mCurrentPosition);
+                    mContext.startActivity(intent);
+                }
+            });
         }
 
         public TextView getProductName() {
@@ -80,6 +91,14 @@ public class ProductRecyclerAdapter extends RecyclerView.Adapter <ProductRecycle
 
         public ImageView getProductThumb() {
             return mProductThumb;
+        }
+
+        public int getCurrentPosition() {
+            return mCurrentPosition;
+        }
+
+        public void setCurrentPosition(int currentPosition) {
+            mCurrentPosition = currentPosition;
         }
     }
 
