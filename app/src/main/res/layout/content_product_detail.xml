@@ -9,7 +9,7 @@
     tools:showIn="@layout/app_bar_product_detail">
 
     <TextView
-        android:id="@+id/text_product_name"
+        android:id="@+id/text_product_name2"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginEnd="8dp"

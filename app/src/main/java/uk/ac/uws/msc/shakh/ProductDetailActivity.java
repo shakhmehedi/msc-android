@@ -1,5 +1,7 @@
 package uk.ac.uws.msc.shakh;
 
+import android.app.SearchManager;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -13,6 +15,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.SearchView;
 import android.widget.TextView;
 
 import uk.ac.uws.msc.shakh.model.Product;
@@ -66,7 +69,7 @@ public class ProductDetailActivity extends AppCompatActivity
 
         mProduct = TestDataManager.getInstance().getProducts().get(mProductPosition);
 
-        mTextProductName = (TextView) findViewById(R.id.text_product_name);
+        mTextProductName = (TextView) findViewById(R.id.text_product_name2);
 
         mTextProductName.setText(mProduct.getName());
 
@@ -86,7 +89,18 @@ public class ProductDetailActivity extends AppCompatActivity
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.product_detail, menu);
+        getMenuInflater().inflate(R.menu.main, menu);
+
+        // Associate searchable configuration with the SearchView
+        SearchManager searchManager =
+                (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+        SearchView searchView =
+                (SearchView) menu.findItem(R.id.product_search).getActionView();
+        if (searchManager != null) {
+            searchView.setSearchableInfo(
+                    searchManager.getSearchableInfo(getComponentName()));
+        }
+
         return true;
     }
 
@@ -98,9 +112,9 @@ public class ProductDetailActivity extends AppCompatActivity
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
+//        if (id == R.id.action_settings) {
+//            return true;
+//        }
 
         return super.onOptionsItemSelected(item);
     }
