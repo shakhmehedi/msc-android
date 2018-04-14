@@ -1,4 +1,4 @@
-package uk.ac.uws.msc.shakh.shakhmsc.model;
+package uk.ac.uws.msc.shakh.model;
 
 /**
  * Created by shakh on 14/04/2018.

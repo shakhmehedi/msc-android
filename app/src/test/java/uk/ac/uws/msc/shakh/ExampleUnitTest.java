@@ -1,4 +1,4 @@
-package uk.ac.uws.msc.shakh.shakhmsc;
+package uk.ac.uws.msc.shakh;
 
 import org.junit.Test;
 

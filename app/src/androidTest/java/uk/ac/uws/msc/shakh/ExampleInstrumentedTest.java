@@ -1,4 +1,4 @@
-package uk.ac.uws.msc.shakh.shakhmsc;
+package uk.ac.uws.msc.shakh;
 
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;
