@@ -12,7 +12,6 @@ import android.widget.TextView;
 import java.util.List;
 
 import uk.ac.uws.msc.shakh.ProductDetailActivity;
-import uk.ac.uws.msc.shakh.model.Product;
 import uk.ac.uws.msc.shakh.shakhmsc.R;
 
 /**
@@ -21,10 +20,10 @@ import uk.ac.uws.msc.shakh.shakhmsc.R;
 
 public class ProductRecyclerAdapter extends RecyclerView.Adapter <ProductRecyclerAdapter.ViewHolder> {
     private final Context mContext;
-    private final List<Product> mProducts;
+    private final List<com.github.chen0040.magento.models.Product> mProducts;
     private final LayoutInflater mLayoutInflater;
 
-    public ProductRecyclerAdapter(Context context, List<Product> products){
+    public ProductRecyclerAdapter(Context context, List<com.github.chen0040.magento.models.Product> products) {
 
         mContext = context;
         mProducts = products;
@@ -39,10 +38,11 @@ public class ProductRecyclerAdapter extends RecyclerView.Adapter <ProductRecycle
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
-        Product product = mProducts.get(position);
+        com.github.chen0040.magento.models.Product product = mProducts.get(position);
         holder.getProductName().setText(product.getName());
         holder.getProductPrice().setText(Double.toString(product.getPrice()));
         holder.getProductPriceCurrency().setText("£");
+        holder.getProductSku().setText(product.getSku());
         holder.setCurrentPosition(position);
         //ToDo handle image
     }
@@ -56,6 +56,7 @@ public class ProductRecyclerAdapter extends RecyclerView.Adapter <ProductRecycle
         private final TextView mProductName;
         private final TextView mProductPrice;
         private final TextView mProductPriceCurrency;
+        private final TextView mProductSku;
         private final ImageView mProductThumb;
         private int mCurrentPosition;
 
@@ -65,6 +66,7 @@ public class ProductRecyclerAdapter extends RecyclerView.Adapter <ProductRecycle
             mProductName = (TextView) itemView.findViewById(R.id.text_product_name);
             mProductPrice = (TextView) itemView.findViewById(R.id.text_product_price);
             mProductPriceCurrency = (TextView) itemView.findViewById(R.id.text_product_price_currency);
+            mProductSku = (TextView) itemView.findViewById(R.id.text_product_sku);
             mProductThumb = (ImageView) itemView.findViewById(R.id.image_view_product_thumb);
 
             itemView.setOnClickListener(new View.OnClickListener() {
@@ -72,6 +74,8 @@ public class ProductRecyclerAdapter extends RecyclerView.Adapter <ProductRecycle
                 public void onClick(View v) {
                     Intent intent = new Intent(mContext, ProductDetailActivity.class);
                     intent.putExtra(ProductDetailActivity.PRODUCT_POSITION, mCurrentPosition);
+                    String sku = ((TextView) itemView.findViewById(R.id.text_product_sku)).getText().toString();
+                    intent.putExtra(ProductDetailActivity.PRODUCT_SKU, sku);
                     mContext.startActivity(intent);
                 }
             });
@@ -87,6 +91,10 @@ public class ProductRecyclerAdapter extends RecyclerView.Adapter <ProductRecycle
 
         public TextView getProductPriceCurrency() {
             return mProductPriceCurrency;
+        }
+
+        public TextView getProductSku() {
+            return mProductSku;
         }
 
         public ImageView getProductThumb() {

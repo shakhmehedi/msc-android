@@ -18,7 +18,6 @@ import android.view.MenuItem;
 import android.widget.SearchView;
 import android.widget.TextView;
 
-import uk.ac.uws.msc.shakh.model.Product;
 import uk.ac.uws.msc.shakh.model.TestDataManager;
 import uk.ac.uws.msc.shakh.shakhmsc.R;
 
@@ -26,11 +25,13 @@ public class ProductDetailActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
     public static final String PRODUCT_POSITION = "uk.ac.uws.msc.shakh.PRODUCT_POSITION";
+    public static final String PRODUCT_SKU = "uk.ac.uws.msc.shakh.PRODUCT_SKU";
     private static final int POSITION_NOT_SET = -1;
     private int mProductPosition;
     private boolean mIsValidProduct;
-    private Product mProduct;
+    private com.github.chen0040.magento.models.Product mProduct;
     private TextView mTextProductName;
+    private String mProductSku;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,16 +63,17 @@ public class ProductDetailActivity extends AppCompatActivity
 
     private void displayProductDetail() {
         Intent intent = getIntent();
+        mProductSku = intent.getStringExtra(PRODUCT_SKU);
         mProductPosition = intent.getIntExtra(PRODUCT_POSITION, POSITION_NOT_SET);
         if (mProductPosition > POSITION_NOT_SET) {
             mIsValidProduct = true;
         }
 
-        mProduct = TestDataManager.getInstance().getProducts().get(mProductPosition);
+//        mProduct = TestDataManager.getInstance().getProducts().get(mProductPosition);
 
         mTextProductName = (TextView) findViewById(R.id.text_product_name2);
 
-        mTextProductName.setText(mProduct.getName());
+        mTextProductName.setText(mProductSku);
 
 
     }
