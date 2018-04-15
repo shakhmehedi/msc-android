@@ -45,6 +45,9 @@ public class MainActivity extends AppCompatActivity
     private static String mClientToken = "";
     private static String mAdminToken = "";
 
+    private static AndroidMagentoClient magentoCustomerClient;
+    private static AndroidMagentoClient magentoAdminClient;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -73,9 +76,9 @@ public class MainActivity extends AppCompatActivity
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(policy);
 
-        Toast.makeText(this, "Created new customer token: " + MainActivity.getClientToken()
+        Toast.makeText(this, "Created new customer token: " + this.getMagentoCustomerClient().getToken()
                 , Toast.LENGTH_SHORT).show();
-        Toast.makeText(this, "Created new admin token: " + MainActivity.getAdminToken()
+        Toast.makeText(this, "Created new admin token: " + MainActivity.getMagentoAdminClient().getToken()
                 , Toast.LENGTH_SHORT).show();
 
         initDisplayContent();
@@ -182,19 +185,20 @@ public class MainActivity extends AppCompatActivity
         return true;
     }
 
-    public static String getClientToken() {
-        AndroidMagentoClient androidMagentoClient = new AndroidMagentoClient(MAGENTO_BASE_URL);
-        if (mClientToken.length() == 0) {
-            mClientToken = androidMagentoClient.loginAsClient("shakhmehedi@yahoo.com", "shakhmscpasS1");
+
+    public static AndroidMagentoClient getMagentoCustomerClient() {
+        if (magentoCustomerClient == null) {
+            magentoCustomerClient = new AndroidMagentoClient(MAGENTO_BASE_URL);
+            magentoCustomerClient.loginAsClient("shakhmehedi@yahoo.com", "shakhmscpasS1");
         }
-        return mClientToken;
+        return magentoCustomerClient;
     }
 
-    public static String getAdminToken() {
-        AndroidMagentoClient androidMagentoClient = new AndroidMagentoClient(MAGENTO_BASE_URL);
-        if (mAdminToken.length() == 0) {
-            mAdminToken = androidMagentoClient.loginAsAdmin("admin", "shakhmscpasS1]");
+    public static AndroidMagentoClient getMagentoAdminClient() {
+        if (magentoAdminClient == null) {
+            magentoAdminClient = new AndroidMagentoClient(MAGENTO_BASE_URL);
+            magentoAdminClient.loginAsAdmin("admin", "shakhmscpasS1]");
         }
-        return mAdminToken;
+        return magentoAdminClient;
     }
 }
