@@ -22,11 +22,11 @@ import android.widget.SearchView;
 import android.widget.Toast;
 
 import com.github.chen0040.androidmagentoclient.AndroidMagentoClient;
+import com.github.chen0040.magento.models.Product;
 
 import java.util.List;
 
 import uk.ac.uws.msc.shakh.adapter.ProductRecyclerAdapter;
-import uk.ac.uws.msc.shakh.model.TestDataManager;
 import uk.ac.uws.msc.shakh.shakhmsc.R;
 
 //import android.support.v7.widget.SearchView;
@@ -46,6 +46,7 @@ public class MainActivity extends AppCompatActivity
 
     private static AndroidMagentoClient magentoCustomerClient;
     private static AndroidMagentoClient magentoAdminClient;
+    private static List<Product> mProductList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,10 +76,10 @@ public class MainActivity extends AppCompatActivity
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(policy);
 
-        Toast.makeText(this, "Created new customer token: " + this.getMagentoCustomerClient().getToken()
-                , Toast.LENGTH_SHORT).show();
-        Toast.makeText(this, "Created new admin token: " + MainActivity.getMagentoAdminClient().getToken()
-                , Toast.LENGTH_SHORT).show();
+//        Toast.makeText(this, "Created new customer token: " + this.getMagentoCustomerClient().getToken()
+//                , Toast.LENGTH_SHORT).show();
+//        Toast.makeText(this, "Created new admin token: " + MainActivity.getMagentoAdminClient().getToken()
+//                , Toast.LENGTH_SHORT).show();
 
         initDisplayContent();
     }
@@ -87,10 +88,9 @@ public class MainActivity extends AppCompatActivity
         mRecyclerItems = (RecyclerView) findViewById(R.id.list_products);
         mProductsLayoutManager = new LinearLayoutManager(this);
 
-        List<com.github.chen0040.magento.models.Product> products
-                = MainActivity.getMagentoAdminClient().getProducts().page(1, 20).getItems();
+        mProductList = MainActivity.getMagentoAdminClient().getProducts().page(1, 20).getItems();
 
-        mProductRecyclerAdapter = new ProductRecyclerAdapter(this, products);
+        mProductRecyclerAdapter = new ProductRecyclerAdapter(this, mProductList);
 
         displayContent();
     }

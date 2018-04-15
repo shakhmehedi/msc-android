@@ -15,11 +15,18 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.webkit.WebView;
+import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.SearchView;
 import android.widget.TextView;
 
-import uk.ac.uws.msc.shakh.model.TestDataManager;
+import com.github.chen0040.magento.models.MagentoAttribute;
+import com.github.chen0040.magento.models.Product;
+import com.github.chen0040.magento.models.StockItems;
+
 import uk.ac.uws.msc.shakh.shakhmsc.R;
+import uk.ac.uws.msc.shakh.util.UtilProduct;
 
 public class ProductDetailActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -29,9 +36,16 @@ public class ProductDetailActivity extends AppCompatActivity
     private static final int POSITION_NOT_SET = -1;
     private int mProductPosition;
     private boolean mIsValidProduct;
-    private com.github.chen0040.magento.models.Product mProduct;
+    private Product mProduct;
     private TextView mTextProductName;
     private String mProductSku;
+    private TextView mTextProductSku;
+    private TextView mTextProductStock;
+    private TextView mTextProductPrice;
+    private Button mButtonAddToCart;
+    private WebView mWebviewProductDescription;
+    private StockItems mProductStockItem;
+    private ImageView mImageProduct;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,14 +83,29 @@ public class ProductDetailActivity extends AppCompatActivity
             mIsValidProduct = true;
         }
 
-//        mProduct = TestDataManager.getInstance().getProducts().get(mProductPosition);
+        mProduct = MainActivity.getMagentoAdminClient().getProducts().getProductBySku(mProductSku);
+        mProductStockItem = MainActivity.getMagentoAdminClient().getInventory().getStockItems(mProductSku);
 
-        mTextProductName = (TextView) findViewById(R.id.text_product_name2);
+        mImageProduct = (ImageView) findViewById(R.id.image_product_main);
+        mTextProductName = (TextView) findViewById(R.id.text_product_name);
+        mTextProductSku = (TextView) findViewById(R.id.text_product_sku);
+        mTextProductStock = (TextView) findViewById(R.id.text_product_stock);
+        mTextProductPrice = (TextView) findViewById(R.id.text_product_price);
+        mButtonAddToCart = (Button) findViewById(R.id.button_add_to_cart);
+        mWebviewProductDescription = (WebView) findViewById(R.id.webview_product_description);
 
-        mTextProductName.setText(mProductSku);
 
+        UtilProduct.loadImage(this, getApplicationContext(), mImageProduct, mProduct);
+        mTextProductName.setText(mProduct.getName());
+        mTextProductSku.setText(mProduct.getSku());
+        mTextProductStock.setText(Integer.toString(mProductStockItem.getQty()));
+        mTextProductPrice.setText(Double.toString(mProduct.getPrice()));
+
+        String description = UtilProduct.getProductExtraAttributeValue(mProduct, "description");
+        mWebviewProductDescription.loadData(description, "text/html", null);
 
     }
+
 
     @Override
     public void onBackPressed() {
