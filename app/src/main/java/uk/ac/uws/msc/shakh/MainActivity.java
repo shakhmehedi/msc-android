@@ -4,11 +4,13 @@ import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.StrictMode;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 //import android.support.v7.widget.SearchView;
+import android.util.Log;
 import android.widget.SearchView;
 import android.view.View;
 import android.support.design.widget.NavigationView;
@@ -21,6 +23,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import com.github.chen0040.androidmagentoclient.AndroidMagentoClient;
+
 import java.util.List;
 
 import uk.ac.uws.msc.shakh.adapter.ProductRecyclerAdapter;
@@ -32,10 +36,14 @@ public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
     public static final String SEARCH_QUERY = "uk.ac.uws.msc.shakh.SEARCH_QUERY";
+    public static final String MAGENTO_BASE_URL = "http://192.168.1.91";
     private RecyclerView mRecyclerItems;
     private LinearLayoutManager mProductsLayoutManager;
     // private ProductRecyclerAdapter mCoursesLayoutManager;
     private ProductRecyclerAdapter mProductRecyclerAdapter;
+
+    private static String mClientToken = "";
+    private static String mAdminToken = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,6 +69,14 @@ public class MainActivity extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+
+        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+        StrictMode.setThreadPolicy(policy);
+
+        Toast.makeText(this, "Created new customer token: " + MainActivity.getClientToken()
+                , Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "Created new admin token: " + MainActivity.getAdminToken()
+                , Toast.LENGTH_SHORT).show();
 
         initDisplayContent();
     }
@@ -164,5 +180,21 @@ public class MainActivity extends AppCompatActivity
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    public static String getClientToken() {
+        AndroidMagentoClient androidMagentoClient = new AndroidMagentoClient(MAGENTO_BASE_URL);
+        if (mClientToken.length() == 0) {
+            mClientToken = androidMagentoClient.loginAsClient("shakhmehedi@yahoo.com", "shakhmscpasS1");
+        }
+        return mClientToken;
+    }
+
+    public static String getAdminToken() {
+        AndroidMagentoClient androidMagentoClient = new AndroidMagentoClient(MAGENTO_BASE_URL);
+        if (mAdminToken.length() == 0) {
+            mAdminToken = androidMagentoClient.loginAsAdmin("admin", "shakhmscpasS1]");
+        }
+        return mAdminToken;
     }
 }
