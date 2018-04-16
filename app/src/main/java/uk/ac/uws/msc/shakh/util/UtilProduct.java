@@ -7,6 +7,8 @@ import com.github.chen0040.magento.models.MagentoAttribute;
 import com.github.chen0040.magento.models.Product;
 import com.squareup.picasso.Picasso;
 
+import java.util.List;
+
 import uk.ac.uws.msc.shakh.MainActivity;
 import uk.ac.uws.msc.shakh.ProductDetailActivity;
 
@@ -53,4 +55,14 @@ public class UtilProduct {
         return value;
 
     }
+
+//    public static List<uk.ac.uws.msc.shakh.model.Product> search(String query){
+//        List<uk.ac.uws.msc.shakh.model.Product> products;
+//
+//        /**
+//         * Search in product sku
+//         */
+//
+//        return List;
+//    }
 }

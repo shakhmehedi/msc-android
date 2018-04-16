@@ -20,6 +20,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.SearchView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.github.chen0040.magento.models.Product;
 import com.github.chen0040.magento.models.StockItems;
@@ -130,6 +131,26 @@ public class ProductDetailActivity extends AppCompatActivity
             searchView.setSearchableInfo(
                     searchManager.getSearchableInfo(getComponentName()));
         }
+
+        /**
+         * Handle search event.
+         */
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+
+                Intent intent = new Intent(ProductDetailActivity.this, ProductListActivity.class);
+                intent.putExtra(MainActivity.SEARCH_QUERY, query);
+                startActivity(intent);
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                Toast.makeText(getApplicationContext(), newText, Toast.LENGTH_SHORT).show();
+                return false;
+            }
+        });
 
         return true;
     }

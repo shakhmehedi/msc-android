@@ -9,8 +9,11 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.github.chen0040.magento.models.Product;
+
 import java.util.List;
 
+import uk.ac.uws.msc.shakh.MainActivity;
 import uk.ac.uws.msc.shakh.ProductDetailActivity;
 import uk.ac.uws.msc.shakh.shakhmsc.R;
 import uk.ac.uws.msc.shakh.util.UtilProduct;
@@ -23,13 +26,15 @@ public class ProductRecyclerAdapter extends RecyclerView.Adapter <ProductRecycle
     private final Context mContext;
     private final List<com.github.chen0040.magento.models.Product> mProducts;
     private final LayoutInflater mLayoutInflater;
+    private String mQuery;
 
-    public ProductRecyclerAdapter(Context context, List<com.github.chen0040.magento.models.Product> products) {
+    public ProductRecyclerAdapter(Context context, List<Product> products, String query) {
 
         mContext = context;
         mProducts = products;
 
         mLayoutInflater = LayoutInflater.from(context);
+        mQuery = query;
     }
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -78,6 +83,9 @@ public class ProductRecyclerAdapter extends RecyclerView.Adapter <ProductRecycle
                     intent.putExtra(ProductDetailActivity.PRODUCT_POSITION, mCurrentPosition);
                     String sku = ((TextView) itemView.findViewById(R.id.text_product_sku)).getText().toString();
                     intent.putExtra(ProductDetailActivity.PRODUCT_SKU, sku);
+                    if (mQuery.length() > 0) {
+                        intent.putExtra(MainActivity.SEARCH_QUERY, mQuery);
+                    }
                     mContext.startActivity(intent);
                 }
             });

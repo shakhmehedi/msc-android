@@ -21,13 +21,9 @@ import android.view.View;
 import android.widget.SearchView;
 import android.widget.Toast;
 
-import com.github.chen0040.androidmagentoclient.AndroidMagentoClient;
-import com.github.chen0040.magento.models.Product;
-
-import java.util.List;
-
 import uk.ac.uws.msc.shakh.adapter.ProductRecyclerAdapter;
 import uk.ac.uws.msc.shakh.shakhmsc.R;
+import uk.ac.uws.msc.shakh.util.ExtendedAndroidMagentoClient;
 
 //import android.support.v7.widget.SearchView;
 
@@ -44,9 +40,8 @@ public class MainActivity extends AppCompatActivity
     private static String mClientToken = "";
     private static String mAdminToken = "";
 
-    private static AndroidMagentoClient magentoCustomerClient;
-    private static AndroidMagentoClient magentoAdminClient;
-    private static List<Product> mProductList;
+    private static ExtendedAndroidMagentoClient magentoCustomerClient;
+    private static ExtendedAndroidMagentoClient magentoAdminClient;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,6 +68,9 @@ public class MainActivity extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
+        /**
+         * This is important. If policy is not set, network communication fails.
+         */
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(policy);
 
@@ -81,24 +79,10 @@ public class MainActivity extends AppCompatActivity
 //        Toast.makeText(this, "Created new admin token: " + MainActivity.getMagentoAdminClient().getToken()
 //                , Toast.LENGTH_SHORT).show();
 
-        initDisplayContent();
+        // initDisplayContent();
     }
 
-    private void initDisplayContent() {
-        mRecyclerItems = (RecyclerView) findViewById(R.id.list_products);
-        mProductsLayoutManager = new LinearLayoutManager(this);
 
-        mProductList = MainActivity.getMagentoAdminClient().getProducts().page(1, 20).getItems();
-
-        mProductRecyclerAdapter = new ProductRecyclerAdapter(this, mProductList);
-
-        displayContent();
-    }
-
-    private void displayContent() {
-        mRecyclerItems.setLayoutManager(mProductsLayoutManager);
-        mRecyclerItems.setAdapter(mProductRecyclerAdapter);
-    }
 
     @Override
     public void onBackPressed() {
@@ -187,19 +171,21 @@ public class MainActivity extends AppCompatActivity
     }
 
 
-    public static AndroidMagentoClient getMagentoCustomerClient() {
+    public static ExtendedAndroidMagentoClient getMagentoCustomerClient() {
         if (magentoCustomerClient == null) {
-            magentoCustomerClient = new AndroidMagentoClient(MAGENTO_BASE_URL);
+            magentoCustomerClient = new ExtendedAndroidMagentoClient(MAGENTO_BASE_URL);
             magentoCustomerClient.loginAsClient("shakhmehedi@yahoo.com", "shakhmscpasS1");
         }
         return magentoCustomerClient;
     }
 
-    public static AndroidMagentoClient getMagentoAdminClient() {
+    public static ExtendedAndroidMagentoClient getMagentoAdminClient() {
         if (magentoAdminClient == null) {
-            magentoAdminClient = new AndroidMagentoClient(MAGENTO_BASE_URL);
+            magentoAdminClient = new ExtendedAndroidMagentoClient(MAGENTO_BASE_URL);
             magentoAdminClient.loginAsAdmin("admin", "shakhmscpasS1]");
         }
         return magentoAdminClient;
     }
+
+
 }
