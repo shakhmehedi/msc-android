@@ -34,7 +34,6 @@ public class MainActivity extends AppCompatActivity
     public static final String MAGENTO_BASE_URL = "http://192.168.1.91";
     private RecyclerView mRecyclerItems;
     private LinearLayoutManager mProductsLayoutManager;
-    // private ProductRecyclerAdapter mCoursesLayoutManager;
     private ProductRecyclerAdapter mProductRecyclerAdapter;
 
     private static String mClientToken = "";
@@ -74,12 +73,6 @@ public class MainActivity extends AppCompatActivity
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(policy);
 
-//        Toast.makeText(this, "Created new customer token: " + this.getMagentoCustomerClient().getToken()
-//                , Toast.LENGTH_SHORT).show();
-//        Toast.makeText(this, "Created new admin token: " + MainActivity.getMagentoAdminClient().getToken()
-//                , Toast.LENGTH_SHORT).show();
-
-        // initDisplayContent();
     }
 
 
@@ -98,39 +91,6 @@ public class MainActivity extends AppCompatActivity
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main, menu);
-
-//        // Associate searchable configuration with the SearchView
-//        SearchManager searchManager =
-//                (SearchManager) getSystemService(Context.SEARCH_SERVICE);
-//        final SearchView searchView =
-//                (SearchView) menu.findItem(R.id.product_search).getActionView();
-//        if (searchManager != null) {
-//            searchView.setSearchableInfo(
-//                    searchManager.getSearchableInfo(getComponentName()));
-//        }
-//
-//
-//
-//        /**
-//         * Handle search event.
-//         */
-//        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-//            @Override
-//            public boolean onQueryTextSubmit(String query) {
-//
-//                Intent intent = new Intent(MainActivity.this, ProductListActivity.class);
-//                intent.putExtra(SEARCH_QUERY, query);
-//                startActivity(intent);
-//                return false;
-//            }
-//
-//            @Override
-//            public boolean onQueryTextChange(String newText) {
-//                Toast.makeText(getApplicationContext(), newText, Toast.LENGTH_LONG).show();
-//                return false;
-//            }
-//        });
-
         return true;
     }
 
