@@ -24,7 +24,7 @@ import uk.ac.uws.msc.shakh.util.UtilProduct;
 
 public class ProductRecyclerAdapter extends RecyclerView.Adapter <ProductRecyclerAdapter.ViewHolder> {
     private final Context mContext;
-    private final List<com.github.chen0040.magento.models.Product> mProducts;
+    private List<com.github.chen0040.magento.models.Product> mProducts;
     private final LayoutInflater mLayoutInflater;
     private String mQuery;
 
@@ -57,6 +57,14 @@ public class ProductRecyclerAdapter extends RecyclerView.Adapter <ProductRecycle
     @Override
     public int getItemCount() {
         return mProducts.size();
+    }
+
+    public List<Product> getProducts() {
+        return mProducts;
+    }
+
+    public void setProducts(List<Product> products) {
+        mProducts = products;
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder{

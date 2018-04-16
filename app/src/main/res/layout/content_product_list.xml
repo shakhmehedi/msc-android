@@ -9,7 +9,7 @@
     tools:showIn="@layout/activity_product_list">
 
     <TextView
-        android:id="@+id/text_tmp"
+        android:id="@+id/text_content_title"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginBottom="8dp"

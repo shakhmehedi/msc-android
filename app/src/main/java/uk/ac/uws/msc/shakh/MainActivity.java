@@ -109,6 +109,7 @@ public class MainActivity extends AppCompatActivity
                     searchManager.getSearchableInfo(getComponentName()));
         }
 
+
         /**
          * Handle search event.
          */
