@@ -11,15 +11,24 @@ import uk.ac.uws.msc.shakh.MainActivity;
 import uk.ac.uws.msc.shakh.ProductDetailActivity;
 
 public class UtilProduct {
-    public static void loadImage(ProductDetailActivity productDetailActivity, Context context, ImageView imageView, Product product) {
-//        String baseUrl = MainActivity.getMagentoAdminClient().getMedia().getProductMediaAbsoluteUrls(product.getSku());
-        String imageFileName = getProductExtraAttributeValue(product, "image");
+    public static final String PRODUCT_IMAGE = "image";
+    public static final String PRODUCT_IMAGE_SMALL = "small_image";
+    public static final String PRODUCT_IMAGE_THUMBNAIL = "thumbnail";
+
+    public static void loadImage(ImageView imageView, Product product, String imageAttrinuteCode) {
+        String imageFileName = getProductExtraAttributeValue(product, imageAttrinuteCode);
         String imageUrl = MainActivity.getMagentoAdminClient().getBaseUri() + "/pub/media/catalog/product/" + imageFileName;
 
-        Picasso
-                .get()
-                .load(imageUrl)
-                .into(imageView);
+        if (imageAttrinuteCode.equals(PRODUCT_IMAGE_THUMBNAIL)) {
+            Picasso.get()
+                    .load(imageUrl)
+                    .resize(50, 70)
+                    .into(imageView);
+        } else {
+            Picasso.get()
+                    .load(imageUrl)
+                    .into(imageView);
+        }
     }
 
     public static String getProductExtraAttributeValue(Product product, String attributeCode) {

@@ -13,6 +13,7 @@ import java.util.List;
 
 import uk.ac.uws.msc.shakh.ProductDetailActivity;
 import uk.ac.uws.msc.shakh.shakhmsc.R;
+import uk.ac.uws.msc.shakh.util.UtilProduct;
 
 /**
  * Created by shakh on 14/04/2018.
@@ -39,6 +40,7 @@ public class ProductRecyclerAdapter extends RecyclerView.Adapter <ProductRecycle
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
         com.github.chen0040.magento.models.Product product = mProducts.get(position);
+        UtilProduct.loadImage(holder.getProductThumb(), product, UtilProduct.PRODUCT_IMAGE_THUMBNAIL);
         holder.getProductName().setText(product.getName());
         holder.getProductPrice().setText(Double.toString(product.getPrice()));
         holder.getProductPriceCurrency().setText("£");

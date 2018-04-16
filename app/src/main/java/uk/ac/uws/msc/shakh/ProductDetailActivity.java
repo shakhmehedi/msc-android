@@ -21,7 +21,6 @@ import android.widget.ImageView;
 import android.widget.SearchView;
 import android.widget.TextView;
 
-import com.github.chen0040.magento.models.MagentoAttribute;
 import com.github.chen0040.magento.models.Product;
 import com.github.chen0040.magento.models.StockItems;
 
@@ -95,7 +94,7 @@ public class ProductDetailActivity extends AppCompatActivity
         mWebviewProductDescription = (WebView) findViewById(R.id.webview_product_description);
 
 
-        UtilProduct.loadImage(this, getApplicationContext(), mImageProduct, mProduct);
+        UtilProduct.loadImage(mImageProduct, mProduct, UtilProduct.PRODUCT_IMAGE);
         mTextProductName.setText(mProduct.getName());
         mTextProductSku.setText(mProduct.getSku());
         mTextProductStock.setText(Integer.toString(mProductStockItem.getQty()));
