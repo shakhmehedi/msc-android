@@ -120,38 +120,8 @@ public class ProductDetailActivity extends AppCompatActivity
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.main, menu);
-
-        // Associate searchable configuration with the SearchView
-        SearchManager searchManager =
-                (SearchManager) getSystemService(Context.SEARCH_SERVICE);
-        SearchView searchView =
-                (SearchView) menu.findItem(R.id.product_search).getActionView();
-        if (searchManager != null) {
-            searchView.setSearchableInfo(
-                    searchManager.getSearchableInfo(getComponentName()));
-        }
-
-        /**
-         * Handle search event.
-         */
-        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-            @Override
-            public boolean onQueryTextSubmit(String query) {
-
-                Intent intent = new Intent(ProductDetailActivity.this, ProductListActivity.class);
-                intent.putExtra(MainActivity.SEARCH_QUERY, query);
-                startActivity(intent);
-                return false;
-            }
-
-            @Override
-            public boolean onQueryTextChange(String newText) {
-                Toast.makeText(getApplicationContext(), newText, Toast.LENGTH_SHORT).show();
-                return false;
-            }
-        });
-
+        getMenuInflater().inflate(R.menu.product_detail, menu);
+        
         return true;
     }
 
@@ -163,10 +133,13 @@ public class ProductDetailActivity extends AppCompatActivity
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-//        if (id == R.id.action_settings) {
-//            return true;
-//        }
+        if (id == R.id.action_search) {
 
+            Intent intent = new Intent(ProductDetailActivity.this, ProductListActivity.class);
+            intent.putExtra(ProductListActivity.INTENT_ACTION, ProductListActivity.ACTION_TYPE_SEARCH);
+            startActivity(intent);
+            return true;
+        }
         return super.onOptionsItemSelected(item);
     }
 

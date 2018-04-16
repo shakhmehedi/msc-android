@@ -15,6 +15,7 @@ import java.util.List;
 
 import uk.ac.uws.msc.shakh.MainActivity;
 import uk.ac.uws.msc.shakh.ProductDetailActivity;
+import uk.ac.uws.msc.shakh.ProductListActivity;
 import uk.ac.uws.msc.shakh.shakhmsc.R;
 import uk.ac.uws.msc.shakh.util.UtilProduct;
 
@@ -35,6 +36,13 @@ public class ProductRecyclerAdapter extends RecyclerView.Adapter <ProductRecycle
 
         mLayoutInflater = LayoutInflater.from(context);
         mQuery = query;
+    }
+
+    public ProductRecyclerAdapter(Context context) {
+
+        mContext = context;
+
+        mLayoutInflater = LayoutInflater.from(context);
     }
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -89,6 +97,7 @@ public class ProductRecyclerAdapter extends RecyclerView.Adapter <ProductRecycle
                 public void onClick(View v) {
                     Intent intent = new Intent(mContext, ProductDetailActivity.class);
                     intent.putExtra(ProductDetailActivity.PRODUCT_POSITION, mCurrentPosition);
+                    intent.putExtra(ProductListActivity.SEARCH_QUERY, mQuery);
                     String sku = ((TextView) itemView.findViewById(R.id.text_product_sku)).getText().toString();
                     intent.putExtra(ProductDetailActivity.PRODUCT_SKU, sku);
                     if (mQuery.length() > 0) {
@@ -126,6 +135,14 @@ public class ProductRecyclerAdapter extends RecyclerView.Adapter <ProductRecycle
         public void setCurrentPosition(int currentPosition) {
             mCurrentPosition = currentPosition;
         }
+
     }
 
+    public void setQuery(String query) {
+        mQuery = query;
+    }
+
+    public String getQuery() {
+        return mQuery;
+    }
 }

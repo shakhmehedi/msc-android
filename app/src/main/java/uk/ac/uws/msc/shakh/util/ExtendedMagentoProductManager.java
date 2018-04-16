@@ -28,6 +28,12 @@ public class ExtendedMagentoProductManager extends MagentoProductManager {
         query = "%" + query + "%";
         String jsonData = page("name", query.toString(), MagentoCollection.CONDITION_TYPE_LIKE);
 
-        return JSON.parseObject(jsonData, ProductPage.class).getItems();
+        ProductPage productPage = productPage = JSON.parseObject(jsonData, ProductPage.class);
+
+        if (productPage == null) {
+            productPage = new ProductPage();
+        }
+
+        return productPage.getItems();
     }
 }

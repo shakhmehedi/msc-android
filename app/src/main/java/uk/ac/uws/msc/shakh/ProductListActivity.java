@@ -21,16 +21,27 @@ import android.widget.Toast;
 
 import com.github.chen0040.magento.models.Product;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import uk.ac.uws.msc.shakh.adapter.ProductRecyclerAdapter;
 import uk.ac.uws.msc.shakh.shakhmsc.R;
 
 public class ProductListActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
-    private static List<Product> mProductList;
+    public static final String ACTION_TYPE_SEARCH = "action_search";
+    public static final String ACTION_TYPE_CATEGORY = "action_category";
+    public static final String INTENT_ACTION = "intent_action";
+    public static final String SEARCH_QUERY = "search_query";
+
+    private static List<Product> mProductList = new ArrayList<>();
     private RecyclerView mRecyclerItems;
     private LinearLayoutManager mProductsLayoutManager;
     private ProductRecyclerAdapter mProductRecyclerAdapter;
+    private SearchView mSearchView;
+    private Intent mIntent;
+    private String mIntentActionType;
+
+    private static String mSearchQuery = "";
 
 
     @Override
@@ -49,26 +60,24 @@ public class ProductListActivity extends AppCompatActivity implements Navigation
             }
         });
 
-        handleIntent(getIntent());
+        mProductRecyclerAdapter = new ProductRecyclerAdapter(this);
+
+        mIntent = getIntent();
+        mIntentActionType = mIntent.getStringExtra(INTENT_ACTION);
+
+        handleIntent(mIntent);
     }
 
     private void handleIntent(Intent intent) {
 
-        String query = intent.getStringExtra(MainActivity.SEARCH_QUERY);
-
-        setProductList(MainActivity.getMagentoAdminClient().extendedProducts().search(query));
-        setContentTitle(query);
         mRecyclerItems = (RecyclerView) findViewById(R.id.list_products);
-        mProductsLayoutManager = new LinearLayoutManager(this);
+        mProductsLayoutManager = new LinearLayoutManager(ProductListActivity.this);
+        mProductRecyclerAdapter = new ProductRecyclerAdapter(ProductListActivity.this, mProductList, mSearchQuery);
 
-        mProductRecyclerAdapter = new ProductRecyclerAdapter(this, mProductList, query);
         mRecyclerItems.setLayoutManager(mProductsLayoutManager);
         mRecyclerItems.setAdapter(mProductRecyclerAdapter);
-    }
+        setContentTitle(mSearchQuery);
 
-    private void setContentTitle(String query) {
-        TextView textView = (TextView) findViewById(R.id.text_content_title);
-        textView.setText("Search Result(" + mProductList.size() + "): " + query);
     }
 
     public static List<Product> getProductList() {
@@ -82,41 +91,75 @@ public class ProductListActivity extends AppCompatActivity implements Navigation
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.main, menu);
+        getMenuInflater().inflate(R.menu.product_list, menu);
 
         // Associate searchable configuration with the SearchView
         SearchManager searchManager =
                 (SearchManager) getSystemService(Context.SEARCH_SERVICE);
-        final SearchView searchView =
-                (SearchView) menu.findItem(R.id.product_search).getActionView();
+        mSearchView = (SearchView) menu.findItem(R.id.product_search).getActionView();
         if (searchManager != null) {
-            searchView.setSearchableInfo(
+            mSearchView.setSearchableInfo(
                     searchManager.getSearchableInfo(getComponentName()));
+        }
+
+        Intent intent = getIntent();
+        String intentAction = intent.getStringExtra(INTENT_ACTION);
+
+        if (intentAction.equals(ACTION_TYPE_SEARCH)) {
+            mSearchView.setQuery(mSearchQuery, true);
+
+            mSearchView.setFocusable(true);
+            mSearchView.setIconified(false);
+
+            mSearchView.requestFocusFromTouch();
+
         }
 
         /**
          * Handle search event.
          */
-        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+        mSearchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
-                setProductList(MainActivity.getMagentoAdminClient().extendedProducts().search(query));
+                List<Product> products = MainActivity.getMagentoAdminClient().extendedProducts().search(query);
+
+                if (products == null) {
+                    mProductList.clear();
+                } else {
+                    mProductList = products;
+                }
+
                 setContentTitle(query);
                 mProductRecyclerAdapter.setProducts(mProductList);
+                mSearchQuery = query;
+                mProductRecyclerAdapter.setQuery(mSearchQuery);
                 mProductRecyclerAdapter.notifyDataSetChanged();
                 return false;
             }
 
             @Override
             public boolean onQueryTextChange(String newText) {
-                Toast.makeText(getApplicationContext(), newText, Toast.LENGTH_SHORT).show();
+                //Toast.makeText(getApplicationContext(), newText, Toast.LENGTH_SHORT).show();
                 return false;
             }
+
         });
 
         return true;
     }
 
+    public void setContentTitle(String query) {
+        String contentTitle = "";
+        if (query == null || query.length() == 0 || mProductList.size() == 0) {
+            contentTitle = "No result found";
+        } else {
+            contentTitle = "Search Result(" + mProductList.size() + "): " + query;
+
+        }
+
+        TextView textView = (TextView) findViewById(R.id.text_content_title);
+        textView.setText(contentTitle);
+    }
 
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
