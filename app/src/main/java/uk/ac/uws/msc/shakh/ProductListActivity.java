@@ -34,6 +34,7 @@ public class ProductListActivity extends AppCompatActivity implements Navigation
     public static final String ACTION_TYPE_CATEGORY = "action_category";
     public static final String INTENT_ACTION = "intent_action";
     public static final String SEARCH_QUERY = "search_query";
+    public static final String RETURN_ALL_PRODUCTS = "return_all_products";
 
     private static List<Product> mProductList = new ArrayList<>();
     private RecyclerView mRecyclerItems;
@@ -65,7 +66,9 @@ public class ProductListActivity extends AppCompatActivity implements Navigation
 
         mIntent = getIntent();
         mIntentActionType = mIntent.getStringExtra(INTENT_ACTION);
-
+        if (mIntentActionType.equals(ACTION_TYPE_SEARCH)) {
+            mSearchQuery = mIntent.getStringExtra(SEARCH_QUERY);
+        }
         handleIntent(mIntent);
     }
 

@@ -8,6 +8,8 @@ import com.github.chen0040.magento.services.MagentoProductManager;
 
 import java.util.List;
 
+import uk.ac.uws.msc.shakh.ProductListActivity;
+
 public class ExtendedMagentoProductManager extends MagentoProductManager {
     private static final String relativePath4Products = "rest/V1/products";
 
@@ -25,10 +27,17 @@ public class ExtendedMagentoProductManager extends MagentoProductManager {
     }
 
     public List<Product> search(String query) {
-        query = "%" + query + "%";
-        String jsonData = page("name", query.toString(), MagentoCollection.CONDITION_TYPE_LIKE);
 
-        ProductPage productPage = productPage = JSON.parseObject(jsonData, ProductPage.class);
+        ProductPage productPage;
+        if (query.equals(ProductListActivity.RETURN_ALL_PRODUCTS)) {
+
+            productPage = page(1, 3000);
+        } else {
+            query = "%" + query + "%";
+
+            String jsonData = page("name", query.toString(), MagentoCollection.CONDITION_TYPE_LIKE);
+            productPage = productPage = JSON.parseObject(jsonData, ProductPage.class);
+        }
 
         if (productPage == null) {
             productPage = new ProductPage();

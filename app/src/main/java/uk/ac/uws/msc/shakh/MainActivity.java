@@ -4,6 +4,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.StrictMode;
 import android.support.design.widget.NavigationView;
+import android.support.design.widget.TabItem;
+import android.support.design.widget.TabLayout;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -13,6 +15,8 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
 
 import uk.ac.uws.msc.shakh.adapter.ProductRecyclerAdapter;
 import uk.ac.uws.msc.shakh.shakhmsc.R;
@@ -34,6 +38,8 @@ public class MainActivity extends AppCompatActivity
 
     private static ExtendedAndroidMagentoClient magentoCustomerClient;
     private static ExtendedAndroidMagentoClient magentoAdminClient;
+    private TabLayout.Tab mTabCategory;
+    private TabLayout.Tab mTabAccount;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,20 +48,52 @@ public class MainActivity extends AppCompatActivity
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.addDrawerListener(toggle);
         toggle.syncState();
 
+        /**
+         * Plural sight  NavigationView:
+         * https://app.pluralsight.com/player?course=android-enhancing-application-experience&author=jim-wilson&name=android-enhancing-application-experience-m5&clip=6
+         */
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+
+
+        TabLayout drawerTabLayout = (TabLayout) navigationView.getHeaderView(0).findViewById(R.id.nav_tab_layout);
+
+        mTabCategory = drawerTabLayout.newTab();
+        mTabCategory.setText("Category");
+        /**
+         * To add content to tab, need to use fragment
+         * http://android-er.blogspot.co.uk/2012/06/create-actionbar-in-tab-navigation-mode.html
+         */
+        mTabCategory.setCustomView(R.layout.tab_category_content);
+        drawerTabLayout.addTab(mTabCategory);
+
+        mTabAccount = drawerTabLayout.newTab();
+        mTabAccount.setText("Account");
+        drawerTabLayout.addTab(mTabAccount);
 
         /**
          * This is important. If policy is not set, network communication fails.
          */
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(policy);
+
+        Button btnViewAllProducts = (Button) findViewById(R.id.button_view_all_product);
+        btnViewAllProducts.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.this, ProductListActivity.class);
+                intent.putExtra(ProductListActivity.INTENT_ACTION, ProductListActivity.ACTION_TYPE_SEARCH);
+                intent.putExtra(ProductListActivity.SEARCH_QUERY, ProductListActivity.RETURN_ALL_PRODUCTS);
+                startActivity(intent);
+            }
+        });
 
     }
 
