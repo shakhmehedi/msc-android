@@ -16,8 +16,7 @@ import java.util.List;
 import com.github.chen0040.magento.models.Category;
 
 import uk.ac.uws.msc.shakh.CategoryListActivity;
-import uk.ac.uws.msc.shakh.ProductListActivity;
-import uk.ac.uws.msc.shakh.shakhmsc.R;
+import uk.ac.uws.msc.shakh.R;
 
 public class CategoryRecyclerAdapter extends RecyclerView.Adapter<CategoryRecyclerAdapter.ViewHolder> {
 

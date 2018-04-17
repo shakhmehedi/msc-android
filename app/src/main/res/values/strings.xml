@@ -1,16 +1,16 @@
 <resources>
-    <string name="app_name">ShakhMSc</string>
-    <string name="title_activity_main">ShakhMSc</string>
+    <string name="app_name">UWS Store</string>
+    <string name="title_activity_main">UWS Store</string>
 
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
 
     <string name="action_settings">Settings</string>
-    <string name="title_activity_product_list">ProductListActivity</string>
-    <string name="title_activity_product_detail">ProductDetailActivity</string>
+    <string name="title_activity_product_list">UWS Store</string>
+    <string name="title_activity_product_detail">UWS Store</string>
     <string name="search_hint">Start typyng ...</string>
-    <string name="title_activity_category_list">CategoryListActivity</string>
-    <string name="nav_header_title">Android Studio</string>
-    <string name="nav_header_subtitle">android.studio@android.com</string>
-    <string name="nav_header_desc">Navigation header</string>
+    <string name="title_activity_category_list">UWS Store</string>
+    <string name="nav_header_title">UWS Store</string>
+    <string name="nav_header_subtitle">username@uws.ac.uk</string>
+    <string name="nav_header_desc">UWS Store</string>
 </resources>

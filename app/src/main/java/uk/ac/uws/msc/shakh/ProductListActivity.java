@@ -23,7 +23,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import uk.ac.uws.msc.shakh.adapter.ProductRecyclerAdapter;
-import uk.ac.uws.msc.shakh.shakhmsc.R;
 
 public class ProductListActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
     public static final String ACTION_TYPE_SEARCH = "action_search";

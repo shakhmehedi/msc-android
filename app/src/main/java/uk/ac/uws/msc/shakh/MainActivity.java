@@ -2,9 +2,7 @@ package uk.ac.uws.msc.shakh;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.PersistableBundle;
 import android.os.StrictMode;
-import android.support.annotation.Nullable;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -30,7 +28,6 @@ import java.util.Map;
 
 import uk.ac.uws.msc.shakh.adapter.CategoryRecyclerAdapter;
 import uk.ac.uws.msc.shakh.adapter.ProductRecyclerAdapter;
-import uk.ac.uws.msc.shakh.shakhmsc.R;
 import uk.ac.uws.msc.shakh.util.ExtendedAndroidMagentoClient;
 
 public class MainActivity extends AppCompatActivity

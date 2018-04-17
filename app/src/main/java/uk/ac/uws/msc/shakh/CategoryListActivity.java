@@ -5,7 +5,6 @@ import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.LruCache;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -20,12 +19,10 @@ import android.widget.TextView;
 import com.github.chen0040.magento.models.Category;
 import com.github.chen0040.magento.models.Product;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import uk.ac.uws.msc.shakh.adapter.CategoryRecyclerAdapter;
 import uk.ac.uws.msc.shakh.adapter.ProductRecyclerAdapter;
-import uk.ac.uws.msc.shakh.shakhmsc.R;
 
 public class CategoryListActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {

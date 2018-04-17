@@ -16,7 +16,7 @@ import java.util.List;
 import uk.ac.uws.msc.shakh.MainActivity;
 import uk.ac.uws.msc.shakh.ProductDetailActivity;
 import uk.ac.uws.msc.shakh.ProductListActivity;
-import uk.ac.uws.msc.shakh.shakhmsc.R;
+import uk.ac.uws.msc.shakh.R;
 import uk.ac.uws.msc.shakh.util.UtilProduct;
 
 /**
