@@ -22,29 +22,42 @@ public class ExtendedMagentoCategoryManager extends MagentoCategoryManager {
 
     public List<Product> getProductsWithDetailByCategoryId(long categryId) {
         List<CategoryProduct> categoryProducts = getProductsInCategory(categryId);
-        String skus = "";
 
-        for (CategoryProduct categoryProduct :
-                categoryProducts) {
-            if (skus.equals("")) {
-                skus += categoryProduct.getSku();
-            } else {
-                skus += categoryProduct.getSku() + ",";
+        List<String> skuPages = new ArrayList<>();
+
+        int currentIndex = 0;
+        while (currentIndex < categoryProducts.size() - 1) {
+            int maxCount = 1500;
+            String skus = "";
+
+            while (skus.length() < maxCount && currentIndex < categoryProducts.size() - 1) {
+                skus += categoryProducts.get(currentIndex).getSku() + ",";
+                currentIndex++;
             }
+
+            skuPages.add(skus);
+            skus = "";
+
         }
 
         List<Product> products = new ArrayList<>();
 
-        if (skus.length() > 0) {
+        if (skuPages.size() > 0) {
             ExtendedMagentoProductManager productManager = new ExtendedMagentoProductManager(mClient);
-            String jsonData = productManager.page("sku", skus, "in");
 
-            ProductPage productPage = new ProductPage();
-            if (!jsonData.isEmpty()) {
-                productPage = JSON.parseObject(jsonData, ProductPage.class);
+            for (String skuString :
+                    skuPages) {
+                String jsonData = "";
+                jsonData = productManager.page("sku", skuString, "in");
+
+                ProductPage productPage = new ProductPage();
+                if (jsonData.length() > 0) {
+                    productPage = JSON.parseObject(jsonData, ProductPage.class);
+                }
+
+                products.addAll(productPage.getItems());
             }
 
-            products = productPage.getItems();
         }
 
         return products;

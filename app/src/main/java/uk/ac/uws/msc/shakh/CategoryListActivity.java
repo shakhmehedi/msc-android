@@ -2,9 +2,8 @@ package uk.ac.uws.msc.shakh;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.support.design.widget.NavigationView;
@@ -18,10 +17,13 @@ import android.view.MenuItem;
 import android.widget.TextView;
 
 import com.github.chen0040.magento.models.Category;
+import com.github.chen0040.magento.models.Product;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import uk.ac.uws.msc.shakh.adapter.CategoryRecyclerAdapter;
+import uk.ac.uws.msc.shakh.adapter.ProductRecyclerAdapter;
 import uk.ac.uws.msc.shakh.shakhmsc.R;
 
 public class CategoryListActivity extends AppCompatActivity
@@ -58,6 +60,7 @@ public class CategoryListActivity extends AppCompatActivity
 
 
         hendleIntent();
+
     }
 
     private void hendleIntent() {
@@ -86,11 +89,30 @@ public class CategoryListActivity extends AppCompatActivity
 
 
         mCategoryRecyclerAdapter = new CategoryRecyclerAdapter(getApplicationContext(), mCategories);
-        mCategotyRecycler = (RecyclerView) findViewById(R.id.recycler_view_category);
+        mCategotyRecycler = (RecyclerView) findViewById(R.id.recycler_view_category_list_activity_category_list);
         mCategoryLayoutManager = new GridLayoutManager(this, 2);
 
         mCategotyRecycler.setLayoutManager(mCategoryLayoutManager);
         mCategotyRecycler.setAdapter(mCategoryRecyclerAdapter);
+
+        displeyProductList();
+    }
+
+    private void displeyProductList() {
+        List<Product> products = new ArrayList<>();
+        if (mCurrentCategory != null) {
+            products = MainActivity.getMagentoAdminClient().extendedCategories()
+                    .getProductsWithDetailByCategoryId(mCurrentCategory.getId());
+        }
+
+        ProductRecyclerAdapter productRecyclerAdapter = new ProductRecyclerAdapter(this, products, "");
+        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recycler_view_category_list_activity_product_list);
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(CategoryListActivity.this);
+
+        recyclerView.setLayoutManager(linearLayoutManager);
+        recyclerView.setAdapter(productRecyclerAdapter);
+
+
     }
 
     @Override

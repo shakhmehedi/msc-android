@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.StrictMode;
 import android.support.design.widget.NavigationView;
-import android.support.design.widget.TabItem;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -114,7 +113,7 @@ public class MainActivity extends AppCompatActivity
         Category category = MainActivity.getMagentoAdminClient().categories().all();
         mCategories = category.getChildren_data();
         mCategoryRecyclerAdapter = new CategoryRecyclerAdapter(getApplicationContext(), mCategories);
-        mCategotyRecycler = (RecyclerView) findViewById(R.id.recycler_view_main_category_list);
+        mCategotyRecycler = (RecyclerView) findViewById(R.id.recycler_view_main_activity_category_list);
         mCategoryLayoutManager = new GridLayoutManager(this, 2);
 
         mCategotyRecycler.setLayoutManager(mCategoryLayoutManager);
