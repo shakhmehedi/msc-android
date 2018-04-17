@@ -47,13 +47,6 @@ public class CategoryRecyclerAdapter extends RecyclerView.Adapter<CategoryRecycl
         holder.setCurrentCategoryId(category.getId());
         holder.getTextCategoryName().setText(category.getName());
 
-        if (category.getProduct_count() < 1) {
-            holder.getButtonViewProduct().setEnabled(false);
-        }
-
-        if (category.getChildren_data().size() < 1) {
-            holder.getButtonViewCategory().setEnabled(false);
-        }
     }
 
     @Override
@@ -74,26 +67,10 @@ public class CategoryRecyclerAdapter extends RecyclerView.Adapter<CategoryRecycl
 
             mTextCategoryName = (TextView) itemView.findViewById(R.id.text_category_name);
             mImageCategory = (ImageView) itemView.findViewById(R.id.image_category);
-            mButtonViewCategory = (Button) itemView.findViewById(R.id.button_view_sub_category);
-            mButtonViewProduct = (Button) itemView.findViewById(R.id.button_view_products);
 
             Category category = mCategories.get(mCurrentPosition);
 
-            mButtonViewProduct.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Category category = mCategories.get(mCurrentPosition);
-
-                    Intent intent = new Intent(mContext, ProductListActivity.class);
-                    intent.putExtra(ProductListActivity.INTENT_ACTION, ProductListActivity.ACTION_TYPE_CATEGORY);
-                    intent.putExtra(ProductListActivity.CATEGORY_ID, category.getId());
-                    mContext.startActivity(intent);
-
-
-                }
-            });
-
-            mButtonViewCategory.setOnClickListener(new View.OnClickListener() {
+            itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     Category category = mCategories.get(mCurrentPosition);

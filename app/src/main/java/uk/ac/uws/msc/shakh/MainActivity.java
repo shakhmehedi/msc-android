@@ -106,16 +106,6 @@ public class MainActivity extends AppCompatActivity
             }
         });
 
-        Button btnViewAllCategory = (Button) findViewById(R.id.button_view_all_category);
-        btnViewAllCategory.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(MainActivity.this, CategoryListActivity.class);
-                intent.putExtra(CategoryListActivity.INTENT_ACTION, CategoryListActivity.ACTION_TYPE_VIEW_ALL_CATEGORY);
-                startActivity(intent);
-            }
-        });
-
         displayCategoryList();
 
     }
