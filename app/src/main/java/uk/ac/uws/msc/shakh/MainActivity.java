@@ -10,6 +10,7 @@ import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -18,6 +19,11 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 
+import com.github.chen0040.magento.models.Category;
+
+import java.util.List;
+
+import uk.ac.uws.msc.shakh.adapter.CategoryRecyclerAdapter;
 import uk.ac.uws.msc.shakh.adapter.ProductRecyclerAdapter;
 import uk.ac.uws.msc.shakh.shakhmsc.R;
 import uk.ac.uws.msc.shakh.util.ExtendedAndroidMagentoClient;
@@ -40,6 +46,11 @@ public class MainActivity extends AppCompatActivity
     private static ExtendedAndroidMagentoClient magentoAdminClient;
     private TabLayout.Tab mTabCategory;
     private TabLayout.Tab mTabAccount;
+    private CategoryRecyclerAdapter mCategoryRecyclerAdapter;
+    private RecyclerView mCategotyRecycler;
+    private GridLayoutManager mCategoryLayoutManager;
+    private List<Category> mCategories;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -105,8 +116,20 @@ public class MainActivity extends AppCompatActivity
             }
         });
 
+        displayCategoryList();
+
     }
 
+    private void displayCategoryList() {
+        Category category = MainActivity.getMagentoAdminClient().categories().all();
+        mCategories = category.getChildren_data();
+        mCategoryRecyclerAdapter = new CategoryRecyclerAdapter(getApplicationContext(), mCategories);
+        mCategotyRecycler = (RecyclerView) findViewById(R.id.recycler_view_main_category_list);
+        mCategoryLayoutManager = new GridLayoutManager(this, 2);
+
+        mCategotyRecycler.setLayoutManager(mCategoryLayoutManager);
+        mCategotyRecycler.setAdapter(mCategoryRecyclerAdapter);
+    }
 
 
     @Override

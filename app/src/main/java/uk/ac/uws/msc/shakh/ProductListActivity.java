@@ -75,9 +75,9 @@ public class ProductListActivity extends AppCompatActivity implements Navigation
         if (mIntentActionType.equals(ACTION_TYPE_SEARCH)) {
             mSearchQuery = mIntent.getStringExtra(SEARCH_QUERY);
         } else if (mIntentActionType.equals(ACTION_TYPE_CATEGORY)) {
-            String categoryId = mIntent.getStringExtra(CATEGORY_ID);
+            long categoryId = mIntent.getLongExtra(CATEGORY_ID, 0l);
             //ToDo getProductsByCategoryId
-            mProductList = MainActivity.getMagentoAdminClient().products().page(1, 20).getItems();
+            mProductList = MainActivity.getMagentoAdminClient().extendedCategories().getProductsWithDetailByCategoryId(categoryId);
         }
         mRecyclerItems = (RecyclerView) findViewById(R.id.list_products);
         mProductsLayoutManager = new LinearLayoutManager(ProductListActivity.this);
