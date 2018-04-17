@@ -2,20 +2,21 @@ package uk.ac.uws.msc.shakh;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.PersistableBundle;
 import android.os.StrictMode;
+import android.support.annotation.Nullable;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.LruCache;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.Button;
 
 import com.github.chen0040.magento.models.Category;
 import com.github.chen0040.magento.models.CategoryProduct;
@@ -28,6 +29,7 @@ import java.util.List;
 import java.util.Map;
 
 import uk.ac.uws.msc.shakh.adapter.CategoryRecyclerAdapter;
+import uk.ac.uws.msc.shakh.adapter.ProductRecyclerAdapter;
 import uk.ac.uws.msc.shakh.shakhmsc.R;
 import uk.ac.uws.msc.shakh.util.ExtendedAndroidMagentoClient;
 
@@ -36,6 +38,9 @@ public class MainActivity extends AppCompatActivity
 
     public static final String SEARCH_QUERY = "uk.ac.uws.msc.shakh.SEARCH_QUERY";
     public static final String MAGENTO_BASE_URL = "http://192.168.1.91";
+
+    private long mCategoryIDNewProducts = 7l;
+    private long mCategoryIDBestSellers = 41l;
     private static List<Product> mProductList = new ArrayList<>();
     public static Map<String, Product> mProductListBySky = new HashMap<String, Product>();
 
@@ -76,8 +81,24 @@ public class MainActivity extends AppCompatActivity
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(policy);
 
+        loadProducts();
         displayCategoryList();
+        displayProductListForCategory(mCategoryIDNewProducts, R.id.recycler_view_new_collection);
+        displayProductListForCategory(mCategoryIDBestSellers, R.id.recycler_view_bestseller);
 
+
+    }
+
+
+    private void displayProductListForCategory(long categoryId, int recycleViewId) {
+        List<Product> products = MainActivity.getProductsByCategoryIdSku(categoryId);
+
+        ProductRecyclerAdapter productRecyclerAdapter = new ProductRecyclerAdapter(this, products, "");
+        RecyclerView recyclerView = (RecyclerView) findViewById(recycleViewId);
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(MainActivity.this);
+
+        recyclerView.setLayoutManager(linearLayoutManager);
+        recyclerView.setAdapter(productRecyclerAdapter);
     }
 
     private void displayCategoryList() {
