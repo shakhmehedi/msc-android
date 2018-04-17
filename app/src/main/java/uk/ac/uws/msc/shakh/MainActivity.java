@@ -4,13 +4,11 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.StrictMode;
 import android.support.design.widget.NavigationView;
-import android.support.design.widget.TabLayout;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.LruCache;
@@ -19,12 +17,9 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 
-import com.alibaba.fastjson.JSONArray;
 import com.github.chen0040.magento.models.Category;
 import com.github.chen0040.magento.models.CategoryProduct;
-import com.github.chen0040.magento.models.MagentoAttribute;
 import com.github.chen0040.magento.models.Product;
-import com.github.chen0040.magento.models.ProductAttribute;
 import com.github.chen0040.magento.models.ProductPage;
 
 import java.util.ArrayList;
@@ -33,11 +28,8 @@ import java.util.List;
 import java.util.Map;
 
 import uk.ac.uws.msc.shakh.adapter.CategoryRecyclerAdapter;
-import uk.ac.uws.msc.shakh.adapter.ProductRecyclerAdapter;
 import uk.ac.uws.msc.shakh.shakhmsc.R;
 import uk.ac.uws.msc.shakh.util.ExtendedAndroidMagentoClient;
-
-//import android.support.v7.widget.SearchView;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -46,17 +38,9 @@ public class MainActivity extends AppCompatActivity
     public static final String MAGENTO_BASE_URL = "http://192.168.1.91";
     private static List<Product> mProductList = new ArrayList<>();
     public static Map<String, Product> mProductListBySky = new HashMap<String, Product>();
-    private RecyclerView mRecyclerItems;
-    private LinearLayoutManager mProductsLayoutManager;
-    private ProductRecyclerAdapter mProductRecyclerAdapter;
-
-    private static String mClientToken = "";
-    private static String mAdminToken = "";
 
     private static ExtendedAndroidMagentoClient magentoCustomerClient;
     private static ExtendedAndroidMagentoClient magentoAdminClient;
-    private TabLayout.Tab mTabCategory;
-    private TabLayout.Tab mTabAccount;
     private CategoryRecyclerAdapter mCategoryRecyclerAdapter;
     private RecyclerView mCategotyRecycler;
     private GridLayoutManager mCategoryLayoutManager;
@@ -64,17 +48,12 @@ public class MainActivity extends AppCompatActivity
     private static LruCache<Long, List<Product>> mCategoryProductCache = new LruCache<>(10 * 1024 * 1024);
     private static LruCache<String, List<Product>> mSearchCache = new LruCache<>(10 * 1024 * 1024);
 
-    protected static ProductRecyclerAdapter productRecyclerAdapter;
-
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -91,45 +70,17 @@ public class MainActivity extends AppCompatActivity
 
 //        loadProducts();
 
-
-        TabLayout drawerTabLayout = (TabLayout) navigationView.getHeaderView(0).findViewById(R.id.nav_tab_layout);
-
-        mTabCategory = drawerTabLayout.newTab();
-        mTabCategory.setText("Category");
-        /**
-         * To add content to tab, need to use fragment
-         * http://android-er.blogspot.co.uk/2012/06/create-actionbar-in-tab-navigation-mode.html
-         */
-        mTabCategory.setCustomView(R.layout.tab_category_content);
-        drawerTabLayout.addTab(mTabCategory);
-
-        mTabAccount = drawerTabLayout.newTab();
-        mTabAccount.setText("Account");
-        drawerTabLayout.addTab(mTabAccount);
-
         /**
          * This is important. If policy is not set, network communication fails.
          */
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(policy);
 
-        Button btnViewAllProducts = (Button) findViewById(R.id.button_view_all_product);
-        btnViewAllProducts.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(MainActivity.this, ProductListActivity.class);
-                intent.putExtra(ProductListActivity.INTENT_ACTION, ProductListActivity.ACTION_TYPE_SEARCH);
-                intent.putExtra(ProductListActivity.SEARCH_QUERY, ProductListActivity.SEARCH_ALL_PRODUCTS);
-                startActivity(intent);
-            }
-        });
-
         displayCategoryList();
 
     }
 
     private void displayCategoryList() {
-
 
         Category category = MainActivity.getMagentoAdminClient().categories().all();
         mCategories = category.getChildren_data();
@@ -215,50 +166,13 @@ public class MainActivity extends AppCompatActivity
         return magentoAdminClient;
     }
 
-    public static List<Product> getProductsByCategoryId(long query, boolean refresh) {
-        if (mCategoryProductCache.get(query) == null) {
-
-            List<Product> products = getMagentoAdminClient().extendedCategories()
-                    .getProductsWithDetailByCategoryId(query);
-            ;
-            mCategoryProductCache.put(query, products);
-
-        } else if (refresh) {
-            List<Product> products = getMagentoAdminClient().extendedCategories()
-                    .getProductsWithDetailByCategoryId(query);
-            ;
-
-            mCategoryProductCache.remove(query);
-            mCategoryProductCache.put(query, products);
-        }
-
-        return (List<Product>) mCategoryProductCache.get(query);
-    }
-
-    public static List<Product> searchProduct(String query, boolean referesh) {
-
-        if (mSearchCache.get(query) == null) {
-            List<Product> products = MainActivity.getMagentoAdminClient().extendedProducts().search(query);
-            mSearchCache.put(query, products);
-
-        } else if (referesh == true) {
-            List<Product> products = MainActivity.getMagentoAdminClient().extendedProducts().search(query);
-
-            mSearchCache.remove(query);
-            mSearchCache.put(query, products);
-        }
-
-        return (List<Product>) mSearchCache.get(query);
-    }
-
-    public static List<Product> searchProductFast(String query) {
+    public static List<Product> searchProduct(String query) {
         loadProducts();
 
         if (query.equals(ProductListActivity.SEARCH_ALL_PRODUCTS)) {
             return mProductList;
         }
 
-        //if(mSearchCache.get(query) == null){
         List<Product> result = new ArrayList<>();
 
         /**
@@ -279,11 +193,6 @@ public class MainActivity extends AppCompatActivity
 
         }
 
-        //      mSearchCache.put(query, result);
-        // }
-
-
-        //return mSearchCache.get(query);
         return result;
     }
 

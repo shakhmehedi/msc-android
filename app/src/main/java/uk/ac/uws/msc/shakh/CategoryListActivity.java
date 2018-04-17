@@ -164,7 +164,11 @@ public class CategoryListActivity extends AppCompatActivity
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
+        if (id == R.id.action_search) {
+
+            Intent intent = new Intent(CategoryListActivity.this, ProductListActivity.class);
+            intent.putExtra(ProductListActivity.INTENT_ACTION, ProductListActivity.ACTION_TYPE_SEARCH);
+            startActivity(intent);
             return true;
         }
 

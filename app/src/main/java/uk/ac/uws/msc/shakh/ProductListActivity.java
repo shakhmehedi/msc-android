@@ -14,8 +14,6 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.ProgressBar;
 import android.widget.SearchView;
 import android.widget.TextView;
 
@@ -32,8 +30,6 @@ public class ProductListActivity extends AppCompatActivity implements Navigation
     public static final String INTENT_ACTION = "intent_action";
     public static final String SEARCH_QUERY = "search_query";
     public static final String SEARCH_ALL_PRODUCTS = "all_products";
-    public static final String ACTION_TYPE_CATEGORY = "view_category_product";
-    public static final String CATEGORY_ID = "category_id";
 
     private static List<Product> mProductList = new ArrayList<>();
     private RecyclerView mRecyclerProducts;
@@ -85,9 +81,6 @@ public class ProductListActivity extends AppCompatActivity implements Navigation
         mIntentActionType = mIntent.getStringExtra(INTENT_ACTION);
         if (mIntentActionType.equals(ACTION_TYPE_SEARCH)) {
             mSearchQuery = mIntent.getStringExtra(SEARCH_QUERY);
-        } else if (mIntentActionType.equals(ACTION_TYPE_CATEGORY)) {
-            long categoryId = mIntent.getLongExtra(CATEGORY_ID, 0l);
-            mProductList = MainActivity.getMagentoAdminClient().extendedCategories().getProductsWithDetailByCategoryId(categoryId);
         }
 
         displayContent();
@@ -97,14 +90,6 @@ public class ProductListActivity extends AppCompatActivity implements Navigation
         mRecyclerProducts.setLayoutManager(mProductsLayoutManager);
         mRecyclerProducts.setAdapter(mProductRecyclerAdapter);
         setContentTitle(mSearchQuery);
-    }
-
-    public static List<Product> getProductList() {
-        return mProductList;
-    }
-
-    public static void setProductList(List<Product> productList) {
-        mProductList = productList;
     }
 
     @Override
@@ -138,8 +123,6 @@ public class ProductListActivity extends AppCompatActivity implements Navigation
             @Override
             public boolean onQueryTextSubmit(String query) {
                 reloadProductRecycler(query);
-
-
                 return false;
             }
 
@@ -155,7 +138,7 @@ public class ProductListActivity extends AppCompatActivity implements Navigation
     }
 
     private void reloadProductRecycler(String query) {
-        List<Product> products = MainActivity.searchProductFast(query);
+        List<Product> products = MainActivity.searchProduct(query);
 
         if (products == null) {
             mProductList.clear();
@@ -172,23 +155,15 @@ public class ProductListActivity extends AppCompatActivity implements Navigation
 
     public void setContentTitle(String query) {
         String contentTitle = "";
-        if (query == null || query.length() == 0 || mProductList.size() == 0) {
 
-            contentTitle = "No result found. LRU:";
+        if (query == null || query.length() == 0) {
+            contentTitle += "Please start typing in the search field";
+        } else if (mProductList.size() == 0) {
+            contentTitle = "No product found.";
         } else {
-            contentTitle = "Search Result(" + mProductList.size() + "): " + query;
+            contentTitle += String.format("Search Result(%d) : %s", mProductList.size(), query);
 
         }
-
-        if (mIntentActionType.equals(ACTION_TYPE_CATEGORY)) {
-            contentTitle = mProductList.size() + " products found";
-        }
-
-//        contentTitle += String.format("LRU State: put %s, hit %s, miss %s, max size %s",
-//                mSearchCache.putCount(),
-//                mSearchCache.hitCount(),
-//                mSearchCache.missCount()
-//        );
 
         TextView textView = (TextView) findViewById(R.id.text_content_title);
         textView.setText(contentTitle);
