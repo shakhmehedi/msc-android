@@ -12,19 +12,17 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.util.LruCache;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ProgressBar;
 import android.widget.SearchView;
 import android.widget.TextView;
 
 import com.github.chen0040.magento.models.Product;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import uk.ac.uws.msc.shakh.adapter.ProductRecyclerAdapter;
 import uk.ac.uws.msc.shakh.shakhmsc.R;
@@ -46,9 +44,6 @@ public class ProductListActivity extends AppCompatActivity implements Navigation
     private String mIntentActionType;
 
     private static String mSearchQuery = "";
-    private View mProgressBar;
-
-    private static LruCache mSearchCache;
 
 
     @Override
@@ -67,23 +62,19 @@ public class ProductListActivity extends AppCompatActivity implements Navigation
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
+
         inititializeDisplayParams();
 
         handleIntent();
+
     }
 
     private void inititializeDisplayParams() {
-        int cacheSize = 10 * 1024 * 1024; // 10MiB
-        mSearchCache = new LruCache<String, List<Product>>(cacheSize) {
-            protected int sizeOf(String key, List<Product> products) {
-                return products.size();
-            }
-        };
+
         mProductRecyclerAdapter = new ProductRecyclerAdapter(this);
         mRecyclerProducts = (RecyclerView) findViewById(R.id.list_products);
         mProductsLayoutManager = new LinearLayoutManager(ProductListActivity.this);
         mProductRecyclerAdapter = new ProductRecyclerAdapter(ProductListActivity.this, mProductList, mSearchQuery);
-        mProgressBar = findViewById(R.id.progress_bar_loader);
 
 
     }
@@ -146,40 +137,37 @@ public class ProductListActivity extends AppCompatActivity implements Navigation
         mSearchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
-                // UtilView.showProgress(mProgressBar);
-                mProgressBar.setVisibility(View.VISIBLE);
-                findViewById(R.id.progress_bar_loader).setVisibility(View.INVISIBLE);
-                findViewById(R.id.progress_bar_loader).setVisibility(View.VISIBLE);
-                //List<Product> products = MainActivity.getMagentoAdminClient().extendedProducts().search(query);
-                List<Product> products = getProduct(query, false);
+                reloadProductRecycler(query);
 
-                if (products == null) {
-                    mProductList.clear();
-                } else {
-                    mProductList = products;
-                }
 
-                setContentTitle(query);
-                mProductRecyclerAdapter.setProducts(mProductList);
-                mSearchQuery = query;
-                mProductRecyclerAdapter.setQuery(mSearchQuery);
-                mProductRecyclerAdapter.notifyDataSetChanged();
-
-                mProgressBar.setVisibility(View.INVISIBLE);
-
-                //UtilView.hidProgress(mProgressBar);
                 return false;
             }
 
             @Override
             public boolean onQueryTextChange(String newText) {
-                //Toast.makeText(getApplicationContext(), newText, Toast.LENGTH_SHORT).show();
+                reloadProductRecycler(newText);
                 return false;
             }
 
         });
 
         return true;
+    }
+
+    private void reloadProductRecycler(String query) {
+        List<Product> products = MainActivity.searchProductFast(query);
+
+        if (products == null) {
+            mProductList.clear();
+        } else {
+            mProductList = products;
+        }
+
+        setContentTitle(query);
+        mProductRecyclerAdapter.setProducts(mProductList);
+        mSearchQuery = query;
+        mProductRecyclerAdapter.setQuery(mSearchQuery);
+        mProductRecyclerAdapter.notifyDataSetChanged();
     }
 
     public void setContentTitle(String query) {
@@ -211,18 +199,5 @@ public class ProductListActivity extends AppCompatActivity implements Navigation
         return false;
     }
 
-    protected List<Product> getProduct(String query, boolean referesh) {
-        if (mSearchCache.get(query) == null) {
-            List<Product> products = MainActivity.getMagentoAdminClient().extendedProducts().search(query);
-            mSearchCache.put(query, products);
 
-        } else if (referesh == true) {
-            List<Product> products = MainActivity.getMagentoAdminClient().extendedProducts().search(query);
-
-            mSearchCache.remove(query);
-            mSearchCache.put(query, products);
-        }
-
-        return (List<Product>) mSearchCache.get(query);
-    }
 }

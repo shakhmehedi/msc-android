@@ -19,10 +19,18 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 
+import com.alibaba.fastjson.JSONArray;
 import com.github.chen0040.magento.models.Category;
+import com.github.chen0040.magento.models.CategoryProduct;
+import com.github.chen0040.magento.models.MagentoAttribute;
 import com.github.chen0040.magento.models.Product;
+import com.github.chen0040.magento.models.ProductAttribute;
+import com.github.chen0040.magento.models.ProductPage;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import uk.ac.uws.msc.shakh.adapter.CategoryRecyclerAdapter;
 import uk.ac.uws.msc.shakh.adapter.ProductRecyclerAdapter;
@@ -36,6 +44,8 @@ public class MainActivity extends AppCompatActivity
 
     public static final String SEARCH_QUERY = "uk.ac.uws.msc.shakh.SEARCH_QUERY";
     public static final String MAGENTO_BASE_URL = "http://192.168.1.91";
+    private static List<Product> mProductList = new ArrayList<>();
+    public static Map<String, Product> mProductListBySky = new HashMap<String, Product>();
     private RecyclerView mRecyclerItems;
     private LinearLayoutManager mProductsLayoutManager;
     private ProductRecyclerAdapter mProductRecyclerAdapter;
@@ -52,6 +62,10 @@ public class MainActivity extends AppCompatActivity
     private GridLayoutManager mCategoryLayoutManager;
     private List<Category> mCategories;
     private static LruCache<Long, List<Product>> mCategoryProductCache = new LruCache<>(10 * 1024 * 1024);
+    private static LruCache<String, List<Product>> mSearchCache = new LruCache<>(10 * 1024 * 1024);
+
+    protected static ProductRecyclerAdapter productRecyclerAdapter;
+
 
 
     @Override
@@ -74,6 +88,8 @@ public class MainActivity extends AppCompatActivity
          */
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+
+//        loadProducts();
 
 
         TabLayout drawerTabLayout = (TabLayout) navigationView.getHeaderView(0).findViewById(R.id.nav_tab_layout);
@@ -113,6 +129,8 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void displayCategoryList() {
+
+
         Category category = MainActivity.getMagentoAdminClient().categories().all();
         mCategories = category.getChildren_data();
         mCategoryRecyclerAdapter = new CategoryRecyclerAdapter(getApplicationContext(), mCategories);
@@ -216,4 +234,102 @@ public class MainActivity extends AppCompatActivity
 
         return (List<Product>) mCategoryProductCache.get(query);
     }
+
+    public static List<Product> searchProduct(String query, boolean referesh) {
+
+        if (mSearchCache.get(query) == null) {
+            List<Product> products = MainActivity.getMagentoAdminClient().extendedProducts().search(query);
+            mSearchCache.put(query, products);
+
+        } else if (referesh == true) {
+            List<Product> products = MainActivity.getMagentoAdminClient().extendedProducts().search(query);
+
+            mSearchCache.remove(query);
+            mSearchCache.put(query, products);
+        }
+
+        return (List<Product>) mSearchCache.get(query);
+    }
+
+    public static List<Product> searchProductFast(String query) {
+        loadProducts();
+
+        if (query.equals(ProductListActivity.SEARCH_ALL_PRODUCTS)) {
+            return mProductList;
+        }
+
+        //if(mSearchCache.get(query) == null){
+        List<Product> result = new ArrayList<>();
+
+        /**
+         * Search product
+         *
+         * ToDo Implement search order, search in ollowing order
+         * sku,
+         * name,
+         * short_description
+         * description
+         */
+        for (Product product :
+                mProductList) {
+            String searchString = String.format("%s | %s", product.getSku(), product.getName());
+            if (searchString.toLowerCase().contains(query.toLowerCase())) {
+                result.add(product);
+            }
+
+        }
+
+        //      mSearchCache.put(query, result);
+        // }
+
+
+        //return mSearchCache.get(query);
+        return result;
+    }
+
+
+    public static List<Product> getProductsByCategoryIdSku(long categoryId) {
+        loadProducts();
+
+
+        if (mCategoryProductCache.get(categoryId) == null) {
+            List<CategoryProduct> categoryProducts = MainActivity.getMagentoAdminClient()
+                    .extendedCategories().getProductsInCategory(categoryId);
+
+            List<Product> products = new ArrayList<>();
+
+            for (CategoryProduct categoryProduct :
+                    categoryProducts) {
+                Product product = mProductListBySky.get(categoryProduct.getSku());
+                if (product != null) {
+                    products.add(product);
+                }
+            }
+
+            mCategoryProductCache.put(categoryId, products);
+        }
+
+
+        return mCategoryProductCache.get(categoryId);
+    }
+
+    public static void loadProducts() {
+        if (mProductList.size() == 0) {
+            List<Product> products;
+            ProductPage productPage = MainActivity.getMagentoAdminClient().extendedProducts().page(1, 10000);
+
+            products = productPage.getItems();
+            if (products.size() > 0) {
+                mProductList = products;
+
+                for (Product product :
+                        mProductList) {
+                    mProductListBySky.put(product.getSku(), product);
+                }
+            }
+
+
+        }
+    }
+
 }

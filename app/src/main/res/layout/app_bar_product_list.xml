@@ -22,5 +22,4 @@
 
     <include layout="@layout/content_product_list" />
 
-    <include layout="@layout/loader" />
 </android.support.design.widget.CoordinatorLayout>

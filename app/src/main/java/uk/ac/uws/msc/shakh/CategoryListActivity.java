@@ -43,7 +43,7 @@ public class CategoryListActivity extends AppCompatActivity
     private TextView mCategoryTitle;
     private Category mCurrentCategory;
     private List<Product> mProductList;
-    private static LruCache<Long, List<Product>> mCategoryProductCache = new LruCache<>(10 * 1024 * 1024);
+
 
 
     @Override
@@ -75,12 +75,7 @@ public class CategoryListActivity extends AppCompatActivity
         mCategotyRecycler = (RecyclerView) findViewById(R.id.recycler_view_category_list_activity_category_list);
         mCategoryLayoutManager = new GridLayoutManager(this, 2);
 
-//        int cacheSize = 10 * 1024 * 1024; // 10MiB
-//        mCategoryProductCache = new LruCache<Long, List<Product>>(cacheSize) {
-//            protected int sizeOf(String key, List<Product> products) {
-//                return products.size();
-//            }
-//        };
+
     }
 
 
@@ -121,15 +116,11 @@ public class CategoryListActivity extends AppCompatActivity
 
     private void displeyProductList() {
 
-        List<Product> products = new ArrayList<>();
         if (mCurrentCategory != null) {
-            products = getProductsByCategoryId(mCurrentCategory.getId(), false);
-
-            mProductList = MainActivity.getProductsByCategoryId(mCurrentCategory.getId(), false);
-
+            mProductList = MainActivity.getProductsByCategoryIdSku(mCurrentCategory.getId());
         }
 
-        ProductRecyclerAdapter productRecyclerAdapter = new ProductRecyclerAdapter(this, products, "");
+        ProductRecyclerAdapter productRecyclerAdapter = new ProductRecyclerAdapter(this, mProductList, "");
         RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recycler_view_category_list_activity_product_list);
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(CategoryListActivity.this);
 
@@ -205,23 +196,4 @@ public class CategoryListActivity extends AppCompatActivity
         return true;
     }
 
-    protected List<Product> getProductsByCategoryId(long query, boolean referesh) {
-        if (mCategoryProductCache.get(query) == null) {
-
-            List<Product> products = MainActivity.getMagentoAdminClient().extendedCategories()
-                    .getProductsWithDetailByCategoryId(mCurrentCategory.getId());
-            ;
-            mCategoryProductCache.put(query, products);
-
-        } else if (referesh == true) {
-            List<Product> products = MainActivity.getMagentoAdminClient().extendedCategories()
-                    .getProductsWithDetailByCategoryId(mCurrentCategory.getId());
-            ;
-
-            mCategoryProductCache.remove(query);
-            mCategoryProductCache.put(query, products);
-        }
-
-        return (List<Product>) mCategoryProductCache.get(query);
-    }
 }
