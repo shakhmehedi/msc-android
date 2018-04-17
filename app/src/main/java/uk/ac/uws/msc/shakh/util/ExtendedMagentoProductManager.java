@@ -29,7 +29,7 @@ public class ExtendedMagentoProductManager extends MagentoProductManager {
     public List<Product> search(String query) {
 
         ProductPage productPage;
-        if (query.equals(ProductListActivity.RETURN_ALL_PRODUCTS)) {
+        if (query.equals(ProductListActivity.SEARCH_ALL_PRODUCTS)) {
 
             productPage = page(1, 3000);
         } else {

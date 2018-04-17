@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.LruCache;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -41,6 +42,9 @@ public class CategoryListActivity extends AppCompatActivity
     private GridLayoutManager mCategoryLayoutManager;
     private TextView mCategoryTitle;
     private Category mCurrentCategory;
+    private List<Product> mProductList;
+    private static LruCache<Long, List<Product>> mCategoryProductCache = new LruCache<>(10 * 1024 * 1024);
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,13 +64,29 @@ public class CategoryListActivity extends AppCompatActivity
 
 
         hendleIntent();
-
+        initializeDisplayParam();
     }
+
+    private void initializeDisplayParam() {
+        mCategoryTitle = (TextView) findViewById(R.id.text_category_title);
+
+        mCategoryTitle = (TextView) findViewById(R.id.text_category_title);
+        mCategoryRecyclerAdapter = new CategoryRecyclerAdapter(getApplicationContext(), mCategories);
+        mCategotyRecycler = (RecyclerView) findViewById(R.id.recycler_view_category_list_activity_category_list);
+        mCategoryLayoutManager = new GridLayoutManager(this, 2);
+
+//        int cacheSize = 10 * 1024 * 1024; // 10MiB
+//        mCategoryProductCache = new LruCache<Long, List<Product>>(cacheSize) {
+//            protected int sizeOf(String key, List<Product> products) {
+//                return products.size();
+//            }
+//        };
+    }
+
 
     private void hendleIntent() {
         mIntent = getIntent();
 
-        mCategoryTitle = (TextView) findViewById(R.id.text_category_title);
         mIntentActionType = mIntent.getStringExtra(INTENT_ACTION);
 
         if (mIntentActionType.equals(ACTION_TYPE_VIEW_ALL_CATEGORY)) {
@@ -81,28 +101,32 @@ public class CategoryListActivity extends AppCompatActivity
             mCurrentCategory = category;
         }
 
-        if (mCurrentCategory == null) {
+        displayCategory();
+
+        displeyProductList();
+    }
+
+    private void displayCategory() {
+        initializeDisplayParam();
+        if (mCurrentCategory == null || mCurrentCategory.getChildren_data().size() == 0) {
             mCategoryTitle.setVisibility(View.GONE);
         } else {
             mCategoryTitle.setText("Category: " + mCurrentCategory.getName());
         }
 
 
-        mCategoryRecyclerAdapter = new CategoryRecyclerAdapter(getApplicationContext(), mCategories);
-        mCategotyRecycler = (RecyclerView) findViewById(R.id.recycler_view_category_list_activity_category_list);
-        mCategoryLayoutManager = new GridLayoutManager(this, 2);
-
         mCategotyRecycler.setLayoutManager(mCategoryLayoutManager);
         mCategotyRecycler.setAdapter(mCategoryRecyclerAdapter);
-
-        displeyProductList();
     }
 
     private void displeyProductList() {
+
         List<Product> products = new ArrayList<>();
         if (mCurrentCategory != null) {
-            products = MainActivity.getMagentoAdminClient().extendedCategories()
-                    .getProductsWithDetailByCategoryId(mCurrentCategory.getId());
+            products = getProductsByCategoryId(mCurrentCategory.getId(), false);
+
+            mProductList = MainActivity.getProductsByCategoryId(mCurrentCategory.getId(), false);
+
         }
 
         ProductRecyclerAdapter productRecyclerAdapter = new ProductRecyclerAdapter(this, products, "");
@@ -112,7 +136,16 @@ public class CategoryListActivity extends AppCompatActivity
         recyclerView.setLayoutManager(linearLayoutManager);
         recyclerView.setAdapter(productRecyclerAdapter);
 
+        setProductListTitle();
+    }
 
+    private void setProductListTitle() {
+        TextView productTextView = (TextView) findViewById(R.id.text_category_list_activity_product_title);
+        if (mProductList != null && mProductList.size() > 0) {
+            productTextView.setText(mProductList.size() + " Product(s)");
+        } else {
+            productTextView.setText("No products found in the category");
+        }
     }
 
     @Override
@@ -170,5 +203,25 @@ public class CategoryListActivity extends AppCompatActivity
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    protected List<Product> getProductsByCategoryId(long query, boolean referesh) {
+        if (mCategoryProductCache.get(query) == null) {
+
+            List<Product> products = MainActivity.getMagentoAdminClient().extendedCategories()
+                    .getProductsWithDetailByCategoryId(mCurrentCategory.getId());
+            ;
+            mCategoryProductCache.put(query, products);
+
+        } else if (referesh == true) {
+            List<Product> products = MainActivity.getMagentoAdminClient().extendedCategories()
+                    .getProductsWithDetailByCategoryId(mCurrentCategory.getId());
+            ;
+
+            mCategoryProductCache.remove(query);
+            mCategoryProductCache.put(query, products);
+        }
+
+        return (List<Product>) mCategoryProductCache.get(query);
     }
 }

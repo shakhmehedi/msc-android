@@ -13,12 +13,14 @@ import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.util.LruCache;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 
 import com.github.chen0040.magento.models.Category;
+import com.github.chen0040.magento.models.Product;
 
 import java.util.List;
 
@@ -49,6 +51,7 @@ public class MainActivity extends AppCompatActivity
     private RecyclerView mCategotyRecycler;
     private GridLayoutManager mCategoryLayoutManager;
     private List<Category> mCategories;
+    private static LruCache<Long, List<Product>> mCategoryProductCache = new LruCache<>(10 * 1024 * 1024);
 
 
     @Override
@@ -100,7 +103,7 @@ public class MainActivity extends AppCompatActivity
             public void onClick(View v) {
                 Intent intent = new Intent(MainActivity.this, ProductListActivity.class);
                 intent.putExtra(ProductListActivity.INTENT_ACTION, ProductListActivity.ACTION_TYPE_SEARCH);
-                intent.putExtra(ProductListActivity.SEARCH_QUERY, ProductListActivity.RETURN_ALL_PRODUCTS);
+                intent.putExtra(ProductListActivity.SEARCH_QUERY, ProductListActivity.SEARCH_ALL_PRODUCTS);
                 startActivity(intent);
             }
         });
@@ -194,5 +197,23 @@ public class MainActivity extends AppCompatActivity
         return magentoAdminClient;
     }
 
+    public static List<Product> getProductsByCategoryId(long query, boolean refresh) {
+        if (mCategoryProductCache.get(query) == null) {
 
+            List<Product> products = getMagentoAdminClient().extendedCategories()
+                    .getProductsWithDetailByCategoryId(query);
+            ;
+            mCategoryProductCache.put(query, products);
+
+        } else if (refresh) {
+            List<Product> products = getMagentoAdminClient().extendedCategories()
+                    .getProductsWithDetailByCategoryId(query);
+            ;
+
+            mCategoryProductCache.remove(query);
+            mCategoryProductCache.put(query, products);
+        }
+
+        return (List<Product>) mCategoryProductCache.get(query);
+    }
 }
