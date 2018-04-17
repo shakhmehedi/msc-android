@@ -9,4 +9,8 @@
     <string name="title_activity_product_list">ProductListActivity</string>
     <string name="title_activity_product_detail">ProductDetailActivity</string>
     <string name="search_hint">Start typyng ...</string>
+    <string name="title_activity_category_list">CategoryListActivity</string>
+    <string name="nav_header_title">Android Studio</string>
+    <string name="nav_header_subtitle">android.studio@android.com</string>
+    <string name="nav_header_desc">Navigation header</string>
 </resources>

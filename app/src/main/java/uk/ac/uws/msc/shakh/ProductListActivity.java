@@ -31,10 +31,11 @@ import uk.ac.uws.msc.shakh.shakhmsc.R;
 
 public class ProductListActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
     public static final String ACTION_TYPE_SEARCH = "action_search";
-    public static final String ACTION_TYPE_CATEGORY = "action_category";
     public static final String INTENT_ACTION = "intent_action";
     public static final String SEARCH_QUERY = "search_query";
     public static final String RETURN_ALL_PRODUCTS = "return_all_products";
+    public static final String ACTION_TYPE_CATEGORY = "view_category_product";
+    public static final String CATEGORY_ID = "category_id";
 
     private static List<Product> mProductList = new ArrayList<>();
     private RecyclerView mRecyclerItems;
@@ -64,16 +65,20 @@ public class ProductListActivity extends AppCompatActivity implements Navigation
         navigationView.setNavigationItemSelectedListener(this);
         mProductRecyclerAdapter = new ProductRecyclerAdapter(this);
 
+
+        handleIntent();
+    }
+
+    private void handleIntent() {
         mIntent = getIntent();
         mIntentActionType = mIntent.getStringExtra(INTENT_ACTION);
         if (mIntentActionType.equals(ACTION_TYPE_SEARCH)) {
             mSearchQuery = mIntent.getStringExtra(SEARCH_QUERY);
+        } else if (mIntentActionType.equals(ACTION_TYPE_CATEGORY)) {
+            String categoryId = mIntent.getStringExtra(CATEGORY_ID);
+            //ToDo getProductsByCategoryId
+            mProductList = MainActivity.getMagentoAdminClient().products().page(1, 20).getItems();
         }
-        handleIntent(mIntent);
-    }
-
-    private void handleIntent(Intent intent) {
-
         mRecyclerItems = (RecyclerView) findViewById(R.id.list_products);
         mProductsLayoutManager = new LinearLayoutManager(ProductListActivity.this);
         mProductRecyclerAdapter = new ProductRecyclerAdapter(ProductListActivity.this, mProductList, mSearchQuery);
@@ -155,10 +160,15 @@ public class ProductListActivity extends AppCompatActivity implements Navigation
     public void setContentTitle(String query) {
         String contentTitle = "";
         if (query == null || query.length() == 0 || mProductList.size() == 0) {
+
             contentTitle = "No result found";
         } else {
             contentTitle = "Search Result(" + mProductList.size() + "): " + query;
 
+        }
+
+        if (mIntentActionType.equals(ACTION_TYPE_CATEGORY)) {
+            contentTitle = mProductList.size() + " products found";
         }
 
         TextView textView = (TextView) findViewById(R.id.text_content_title);
