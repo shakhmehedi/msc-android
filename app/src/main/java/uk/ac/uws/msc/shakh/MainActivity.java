@@ -21,6 +21,9 @@ import android.support.v7.widget.Toolbar;
 import android.util.LruCache;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.github.chen0040.magento.models.Category;
@@ -65,8 +68,10 @@ public class MainActivity extends AppCompatActivity
         public void onReceive(Context context, Intent intent) {
             String message = intent.getStringExtra(DataLoaderService.MESSAGE);
             Toast.makeText(MainActivity.this, message, Toast.LENGTH_LONG).show();
+            mProgressBar.setVisibility(View.GONE);
         }
     };
+    private ProgressBar mProgressBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -88,6 +93,12 @@ public class MainActivity extends AppCompatActivity
          */
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+
+        mProgressBar = (ProgressBar) findViewById(R.id.progress_bar_main);
+
+        TextView categoryTitle = (TextView) findViewById(R.id.text_main_category_title);
+        categoryTitle.requestFocusFromTouch();
+        //categoryTitle.requestFocus();
 
         LocalBroadcastManager.getInstance(getApplicationContext())
                 .registerReceiver(mBroadcastReceiver,
