@@ -23,13 +23,13 @@ import uk.ac.uws.msc.shakh.util.UtilProduct;
  * Created by shakh on 14/04/2018.
  */
 
-public class ProductRecyclerAdapter extends RecyclerView.Adapter <ProductRecyclerAdapter.ViewHolder> {
+public class ProductRecyclerAdapter2 extends RecyclerView.Adapter<ProductRecyclerAdapter2.ViewHolder> {
     private final Context mContext;
     private List<Product> mProducts;
     private final LayoutInflater mLayoutInflater;
     private String mQuery;
 
-    public ProductRecyclerAdapter(Context context, List<Product> products, String query) {
+    public ProductRecyclerAdapter2(Context context, List<Product> products, String query) {
 
         mContext = context;
         mProducts = products;
@@ -38,12 +38,13 @@ public class ProductRecyclerAdapter extends RecyclerView.Adapter <ProductRecycle
         mQuery = query;
     }
 
-    public ProductRecyclerAdapter(Context context) {
+    public ProductRecyclerAdapter2(Context context) {
 
         mContext = context;
 
         mLayoutInflater = LayoutInflater.from(context);
     }
+
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View itemView = mLayoutInflater.inflate(R.layout.item_product_list, parent, false);
@@ -72,7 +73,7 @@ public class ProductRecyclerAdapter extends RecyclerView.Adapter <ProductRecycle
         mProducts = products;
     }
 
-    public class ViewHolder extends RecyclerView.ViewHolder{
+    public class ViewHolder extends RecyclerView.ViewHolder {
         private final TextView mProductName;
         private final TextView mProductPrice;
         private final TextView mProductPriceCurrency;

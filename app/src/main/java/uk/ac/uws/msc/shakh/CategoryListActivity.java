@@ -2,9 +2,11 @@ package uk.ac.uws.msc.shakh;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.widget.NestedScrollView;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.MotionEvent;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -14,11 +16,13 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Button;
 import android.widget.TextView;
 
 import com.github.chen0040.magento.models.Category;
 import com.github.chen0040.magento.models.Product;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import uk.ac.uws.msc.shakh.adapter.CategoryRecyclerAdapter;
@@ -31,15 +35,17 @@ public class CategoryListActivity extends AppCompatActivity
     public static final String INTENT_ACTION = "intent_action";
     public static final String ACTION_TYPE_VIEW_CATEGORY = "view_category";
     public static final String CATEGORY_ID = "category_id";
+    public static final String CATEGORY_NAME = "category_name";
     private Intent mIntent;
     private String mIntentActionType;
     private List<Category> mCategories;
-    private CategoryRecyclerAdapter mCategoryRecyclerAdapter;
-    private RecyclerView mCategotyRecycler;
-    private GridLayoutManager mCategoryLayoutManager;
     private TextView mCategoryTitle;
     private Category mCurrentCategory;
-    private List<Product> mProductList;
+    private List<Product> mProductList = new ArrayList<>();
+    private ProductRecyclerAdapter mProductRecyclerAdapter;
+    private RecyclerView mRecyclerView;
+    private Button mButtonShowProducts;
+    private Button mButtonShowProductsNewActivity;
 
 
     @Override
@@ -58,19 +64,35 @@ public class CategoryListActivity extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
+        mButtonShowProducts = (Button) findViewById(R.id.button_show_products);
+        mButtonShowProducts.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                reloadProductRecycler();
+
+
+            }
+        });
+        mButtonShowProductsNewActivity = (Button) findViewById(R.id.button_show_products_new_activity);
+        mButtonShowProductsNewActivity.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(CategoryListActivity.this, CategoryProductListActivity.class);
+                intent.putExtra(CATEGORY_ID, mCurrentCategory.getId());
+                intent.putExtra(CATEGORY_NAME, mCurrentCategory.getName());
+                startActivity(intent);
+            }
+        });
+        initializeDisplayParam();
 
         hendleIntent();
-        initializeDisplayParam();
+
+
     }
+
 
     private void initializeDisplayParam() {
         mCategoryTitle = (TextView) findViewById(R.id.text_category_title);
-
-        mCategoryTitle = (TextView) findViewById(R.id.text_category_title);
-        mCategoryRecyclerAdapter = new CategoryRecyclerAdapter(getApplicationContext(), mCategories);
-        mCategotyRecycler = (RecyclerView) findViewById(R.id.recycler_view_category_list_activity_category_list);
-        mCategoryLayoutManager = new GridLayoutManager(this, 2);
-
 
     }
 
@@ -95,10 +117,16 @@ public class CategoryListActivity extends AppCompatActivity
         displayCategory();
 
         displeyProductList();
+
     }
 
     private void displayCategory() {
         initializeDisplayParam();
+
+        CategoryRecyclerAdapter categoryRecyclerAdapter = new CategoryRecyclerAdapter(getApplicationContext(), mCategories);
+        RecyclerView categotyRecycler = (RecyclerView) findViewById(R.id.recycler_view_category_list_activity_category_list);
+        GridLayoutManager categoryLayoutManager = new GridLayoutManager(this, 2);
+
         if (mCurrentCategory == null || mCurrentCategory.getChildren_data().size() == 0) {
             mCategoryTitle.setVisibility(View.GONE);
         } else {
@@ -106,32 +134,56 @@ public class CategoryListActivity extends AppCompatActivity
         }
 
 
-        mCategotyRecycler.setLayoutManager(mCategoryLayoutManager);
-        mCategotyRecycler.setAdapter(mCategoryRecyclerAdapter);
+        categotyRecycler.setLayoutManager(categoryLayoutManager);
+        categotyRecycler.setAdapter(categoryRecyclerAdapter);
+
+//        if(mCurrentCategory.getProduct_count() < 1){
+//            mButtonShowProducts.setVisibility(View.INVISIBLE);
+//            mButtonShowProductsNewActivity.setVisibility(View.INVISIBLE);
+//        }else {
+//            mButtonShowProducts.setVisibility(View.INVISIBLE);
+//            mButtonShowProductsNewActivity.setVisibility(View.INVISIBLE);
+//        }
     }
 
     private void displeyProductList() {
 
+
+        mProductRecyclerAdapter = new ProductRecyclerAdapter(this, mProductList, "Category");
+
+
+        RecyclerView mRecyclerView = (RecyclerView) findViewById(R.id.recycler_view_category_list_activity_product_list);
+        mRecyclerView.setNestedScrollingEnabled(false);
+        ((NestedScrollView) findViewById(R.id.nested_scrol_view)).setNestedScrollingEnabled(false);
+        NestedScrollView nestedScrollView = (NestedScrollView) findViewById(R.id.nested_scrol_view);
+        nestedScrollView.setSmoothScrollingEnabled(true);
+
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(CategoryListActivity.this);
+
+        mRecyclerView.setLayoutManager(linearLayoutManager);
+        mRecyclerView.setAdapter(mProductRecyclerAdapter);
         if (mCurrentCategory != null) {
             mProductList = MainActivity.getProductsByCategoryIdSku(mCurrentCategory.getId());
         }
-
-        ProductRecyclerAdapter productRecyclerAdapter = new ProductRecyclerAdapter(this, mProductList, "");
-        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recycler_view_category_list_activity_product_list);
-        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(CategoryListActivity.this);
-
-        recyclerView.setLayoutManager(linearLayoutManager);
-        recyclerView.setAdapter(productRecyclerAdapter);
-
         setProductListTitle();
+
+    }
+
+    private void reloadProductRecycler() {
+
+
+        mProductRecyclerAdapter.setProducts(mProductList);
+        mProductRecyclerAdapter.notifyDataSetChanged();
+        setProductListTitle();
+
     }
 
     private void setProductListTitle() {
         TextView productTextView = (TextView) findViewById(R.id.text_category_list_activity_product_title);
         if (mProductList != null && mProductList.size() > 0) {
-            productTextView.setText(mProductList.size() + " Product(s)");
+            productTextView.setText(String.format("%d Product(s) found.", mProductList.size()));
         } else {
-            productTextView.setText("No products found in the category");
+            productTextView.setText(String.format("No products found in the category %s", mCurrentCategory.getName()));
         }
     }
 

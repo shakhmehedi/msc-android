@@ -69,6 +69,8 @@ public class MainActivity extends AppCompatActivity
             String message = intent.getStringExtra(DataLoaderService.MESSAGE);
             Toast.makeText(MainActivity.this, message, Toast.LENGTH_LONG).show();
             mProgressBar.setVisibility(View.GONE);
+            displayProductListForCategory(mNewCategoryId, R.id.recycler_view_new_collection);
+            displayProductListForCategory(mBestsellerCategoryId, R.id.recycler_view_bestseller);
         }
     };
     private ProgressBar mProgressBar;
@@ -94,11 +96,20 @@ public class MainActivity extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
+        if (mProductList.size() > 0) {
+            isProductDataLoaded = true;
+        }
         mProgressBar = (ProgressBar) findViewById(R.id.progress_bar_main);
+
+        if (isProductDataLoaded) {
+            mProgressBar.setVisibility(View.INVISIBLE);
+        } else {
+            mProgressBar.setVisibility(View.VISIBLE);
+        }
+
 
         TextView categoryTitle = (TextView) findViewById(R.id.text_main_category_title);
         categoryTitle.requestFocusFromTouch();
-        //categoryTitle.requestFocus();
 
         LocalBroadcastManager.getInstance(getApplicationContext())
                 .registerReceiver(mBroadcastReceiver,
@@ -116,8 +127,7 @@ public class MainActivity extends AppCompatActivity
 
         loadProducts();
         displayCategoryList();
-        displayProductListForCategory(mNewCategoryId, R.id.recycler_view_new_collection);
-        displayProductListForCategory(mBestsellerCategoryId, R.id.recycler_view_bestseller);
+
 
     }
 
@@ -126,6 +136,11 @@ public class MainActivity extends AppCompatActivity
         super.onDestroy();
 
         LocalBroadcastManager.getInstance(getApplicationContext()).unregisterReceiver(mBroadcastReceiver);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
     }
 
     public static void initializeSettings(Context context, int rewourceId) {
@@ -143,6 +158,7 @@ public class MainActivity extends AppCompatActivity
 
 
     private void displayProductListForCategory(long categoryId, int recycleViewId) {
+
         List<Product> products = MainActivity.getProductsByCategoryIdSku(categoryId);
 
         ProductRecyclerAdapter productRecyclerAdapter = new ProductRecyclerAdapter(this, products, "");
@@ -267,7 +283,7 @@ public class MainActivity extends AppCompatActivity
     public static List<Product> getProductsByCategoryIdSku(long categoryId) {
 
 
-        if (mCategoryProductCache.get(categoryId) == null) {
+        if (mCategoryProductCache.get(categoryId) == null || mCategoryProductCache.get(categoryId).size() < 1) {
             List<CategoryProduct> categoryProducts = MainActivity.getMagentoAdminClient()
                     .extendedCategories().getProductsInCategory(categoryId);
 
@@ -296,7 +312,8 @@ public class MainActivity extends AppCompatActivity
 
     public void loadProducts() {
         if (mProductList.size() == 0) {
-
+            Toast.makeText(getApplicationContext(), "Please wait. Loading data", Toast.LENGTH_LONG).show();
+            Toast.makeText(getApplicationContext(), "Please wait. Loading data", Toast.LENGTH_LONG).show();
             /**
              * Load products using intent service
              */
