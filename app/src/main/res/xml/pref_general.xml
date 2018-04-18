@@ -1,0 +1,49 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- NOTE: EditTextPreference accepts EditText attributes. -->
+    <!-- NOTE: EditTextPreference's summary should be set to its value by the activity code. -->
+
+    <!-- NOTE: Hide buttons to simplify the UI. Users can touch outside the dialog to
+         dismiss it. -->
+    <!-- NOTE: ListPreference's summary should be set to its value by the activity code. -->
+
+    <EditTextPreference
+        android:defaultValue="http://192.168.1.91"
+        android:key="sore_base_url"
+        android:selectAllOnFocus="true"
+        android:singleLine="true"
+        android:title="Base Store URL" />
+    <EditTextPreference
+        android:defaultValue="admin"
+        android:key="admin_username"
+        android:selectAllOnFocus="true"
+        android:singleLine="true"
+        android:title="Admin Username" />
+    <EditTextPreference
+        android:defaultValue="shakhmscpasS1]"
+        android:key="admin_password"
+        android:password="true"
+        android:selectAllOnFocus="true"
+        android:singleLine="true"
+        android:title="Admin Pasword" />
+    <EditTextPreference
+        android:defaultValue="2000"
+        android:key="max_product_to_load"
+        android:numeric="integer|signed"
+        android:selectAllOnFocus="true"
+        android:singleLine="true"
+        android:title="Maximum Number of Product to Load" />
+    <EditTextPreference
+        android:defaultValue="7"
+        android:key="new_prouct_category_id"
+        android:selectAllOnFocus="true"
+        android:singleLine="true"
+        android:title="New Product Category Id" />
+    <EditTextPreference
+        android:defaultValue="41"
+        android:key="bestseller_category_id"
+        android:numeric="integer|signed"
+        android:selectAllOnFocus="true"
+        android:singleLine="true"
+        android:title="Bestseller Category Id" />
+</PreferenceScreen>

@@ -3,9 +3,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:showIn="navigation_view">
     <item
-        android:id="@+id/my_account"
-        android:title="My Account" />
-    <item
         android:id="@+id/app_setting"
         android:title="Setting" />
 </menu>

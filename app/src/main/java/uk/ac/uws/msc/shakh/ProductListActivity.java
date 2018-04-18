@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
+import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
@@ -139,7 +140,7 @@ public class ProductListActivity extends AppCompatActivity implements Navigation
     private void reloadProductRecycler(String query) {
         List<Product> products = MainActivity.searchProduct(query);
 
-        if (products == null) {
+        if (products == null || query.equals("")) {
             mProductList.clear();
         } else {
             mProductList = products;
@@ -170,7 +171,16 @@ public class ProductListActivity extends AppCompatActivity implements Navigation
 
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-        return false;
+        // Handle navigation view item clicks here.
+        int id = item.getItemId();
+
+        if (id == R.id.app_setting) {
+            startActivity(new Intent(this, SettingsActivity.class));
+        }
+
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        drawer.closeDrawer(GravityCompat.START);
+        return true;
     }
 
 

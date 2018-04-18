@@ -1,8 +1,11 @@
 package uk.ac.uws.msc.shakh;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.StrictMode;
+import android.preference.PreferenceManager;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -49,6 +52,12 @@ public class MainActivity extends AppCompatActivity
     private List<Category> mCategories;
     private static LruCache<Long, List<Product>> mCategoryProductCache = new LruCache<>(10 * 1024 * 1024);
     private static LruCache<String, List<Product>> mSearchCache = new LruCache<>(10 * 1024 * 1024);
+    private static String mBaseUrl;
+    private static String mAdminUsername;
+    private static String mAdminPassword;
+    private static int mMaxProductToLod;
+    private static long mNewCategoryId;
+    private static long mBestsellerCategoryId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,6 +65,7 @@ public class MainActivity extends AppCompatActivity
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -78,11 +88,25 @@ public class MainActivity extends AppCompatActivity
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(policy);
 
+        initializeSettings(this, R.xml.pref_general);
+
         loadProducts();
         displayCategoryList();
-        displayProductListForCategory(mCategoryIDNewProducts, R.id.recycler_view_new_collection);
-        displayProductListForCategory(mCategoryIDBestSellers, R.id.recycler_view_bestseller);
+        displayProductListForCategory(mNewCategoryId, R.id.recycler_view_new_collection);
+        displayProductListForCategory(mBestsellerCategoryId, R.id.recycler_view_bestseller);
 
+    }
+
+    public static void initializeSettings(Context context, int rewourceId) {
+        PreferenceManager.setDefaultValues(context, rewourceId, false);
+
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+        mBaseUrl = preferences.getString("sore_base_url", "");
+        mAdminUsername = preferences.getString("admin_username", "");
+        mAdminPassword = preferences.getString("admin_password", "");
+        mMaxProductToLod = Integer.parseInt(preferences.getString("max_product_to_load", "2000"));
+        mNewCategoryId = Long.parseLong(preferences.getString("new_prouct_category_id", "7"));
+        mBestsellerCategoryId = Long.parseLong(preferences.getString("bestseller_category_id", "41"));
 
     }
 
@@ -153,15 +177,10 @@ public class MainActivity extends AppCompatActivity
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
-        if (id == R.id.nav_gallery) {
-
-        } else if (id == R.id.nav_slideshow) {
-
-        } else if (id == R.id.nav_manage) {
-
-        } else if (id == R.id.nav_share) {
-
+        if (id == R.id.app_setting) {
+            startActivity(new Intent(this, SettingsActivity.class));
         }
+
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
@@ -170,7 +189,7 @@ public class MainActivity extends AppCompatActivity
 
     public static ExtendedAndroidMagentoClient getMagentoCustomerClient() {
         if (magentoCustomerClient == null) {
-            magentoCustomerClient = new ExtendedAndroidMagentoClient(MAGENTO_BASE_URL);
+            magentoCustomerClient = new ExtendedAndroidMagentoClient(mBaseUrl);
             magentoCustomerClient.loginAsClient("shakhmehedi@yahoo.com", "shakhmscpasS1");
         }
         return magentoCustomerClient;
@@ -178,8 +197,8 @@ public class MainActivity extends AppCompatActivity
 
     public static ExtendedAndroidMagentoClient getMagentoAdminClient() {
         if (magentoAdminClient == null) {
-            magentoAdminClient = new ExtendedAndroidMagentoClient(MAGENTO_BASE_URL);
-            magentoAdminClient.loginAsAdmin("admin", "shakhmscpasS1]");
+            magentoAdminClient = new ExtendedAndroidMagentoClient(mBaseUrl);
+            magentoAdminClient.loginAsAdmin(mAdminUsername, mAdminPassword);
         }
         return magentoAdminClient;
     }
@@ -243,7 +262,8 @@ public class MainActivity extends AppCompatActivity
     public static void loadProducts() {
         if (mProductList.size() == 0) {
             List<Product> products;
-            ProductPage productPage = MainActivity.getMagentoAdminClient().extendedProducts().page(1, 10000);
+            ProductPage productPage = MainActivity.getMagentoAdminClient().extendedProducts()
+                    .page(1, mMaxProductToLod);
 
             products = productPage.getItems();
             if (products.size() > 0) {
