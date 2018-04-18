@@ -42,7 +42,7 @@ public class MainActivity extends AppCompatActivity
     private long mCategoryIDNewProducts = 7l;
     private long mCategoryIDBestSellers = 41l;
     private static List<Product> mProductList = new ArrayList<>();
-    public static Map<String, Product> mProductListBySky = new HashMap<String, Product>();
+    public static Map<String, Product> mProductListBySku = new HashMap<String, Product>();
 
     private static ExtendedAndroidMagentoClient magentoCustomerClient;
     private static ExtendedAndroidMagentoClient magentoAdminClient;
@@ -246,7 +246,7 @@ public class MainActivity extends AppCompatActivity
 
             for (CategoryProduct categoryProduct :
                     categoryProducts) {
-                Product product = mProductListBySky.get(categoryProduct.getSku());
+                Product product = mProductListBySku.get(categoryProduct.getSku());
                 if (product != null) {
                     products.add(product);
                 }
@@ -257,6 +257,12 @@ public class MainActivity extends AppCompatActivity
 
 
         return mCategoryProductCache.get(categoryId);
+    }
+
+    public static Product getProductBySku(String sku) {
+        Product product = mProductListBySku.get(sku);
+
+        return product;
     }
 
     public static void loadProducts() {
@@ -271,7 +277,7 @@ public class MainActivity extends AppCompatActivity
 
                 for (Product product :
                         mProductList) {
-                    mProductListBySky.put(product.getSku(), product);
+                    mProductListBySku.put(product.getSku(), product);
                 }
             }
 

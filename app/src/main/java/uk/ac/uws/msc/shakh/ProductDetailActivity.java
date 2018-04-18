@@ -59,6 +59,11 @@ public class ProductDetailActivity extends AppCompatActivity
     }
 
     private void displayProductDetail() {
+
+        ImageView imageView = (ImageView) findViewById(R.id.image_product_main);
+        imageView.requestFocus();
+        //imageView.requestFocusFromTouch();
+
         Intent intent = getIntent();
         mProductSku = intent.getStringExtra(PRODUCT_SKU);
         mProductPosition = intent.getIntExtra(PRODUCT_POSITION, POSITION_NOT_SET);
@@ -66,7 +71,8 @@ public class ProductDetailActivity extends AppCompatActivity
             mIsValidProduct = true;
         }
 
-        mProduct = MainActivity.getMagentoAdminClient().getProducts().getProductBySku(mProductSku);
+        // mProduct = MainActivity.getMagentoAdminClient().getProducts().getProductBySku(mProductSku);
+        mProduct = MainActivity.getProductBySku(mProductSku);
         mProductStockItem = MainActivity.getMagentoAdminClient().getInventory().getStockItems(mProductSku);
 
         mImageProduct = (ImageView) findViewById(R.id.image_product_main);
