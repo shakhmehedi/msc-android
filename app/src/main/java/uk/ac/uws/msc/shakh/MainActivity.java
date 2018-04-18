@@ -1,12 +1,15 @@
 package uk.ac.uws.msc.shakh;
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.StrictMode;
 import android.preference.PreferenceManager;
 import android.support.design.widget.NavigationView;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -18,11 +21,11 @@ import android.support.v7.widget.Toolbar;
 import android.util.LruCache;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import com.github.chen0040.magento.models.Category;
 import com.github.chen0040.magento.models.CategoryProduct;
 import com.github.chen0040.magento.models.Product;
-import com.github.chen0040.magento.models.ProductPage;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -31,21 +34,21 @@ import java.util.Map;
 
 import uk.ac.uws.msc.shakh.adapter.CategoryRecyclerAdapter;
 import uk.ac.uws.msc.shakh.adapter.ProductRecyclerAdapter;
+import uk.ac.uws.msc.shakh.services.DataLoaderService;
 import uk.ac.uws.msc.shakh.util.ExtendedAndroidMagentoClient;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
     public static final String SEARCH_QUERY = "uk.ac.uws.msc.shakh.SEARCH_QUERY";
-    public static final String MAGENTO_BASE_URL = "http://192.168.1.91";
 
-    private long mCategoryIDNewProducts = 7l;
-    private long mCategoryIDBestSellers = 41l;
     private static List<Product> mProductList = new ArrayList<>();
+    private static boolean isProductDataLoaded = false;
     public static Map<String, Product> mProductListBySku = new HashMap<String, Product>();
 
     private static ExtendedAndroidMagentoClient magentoCustomerClient;
     private static ExtendedAndroidMagentoClient magentoAdminClient;
+    private static int mMaxProductToLoad;
     private CategoryRecyclerAdapter mCategoryRecyclerAdapter;
     private RecyclerView mCategotyRecycler;
     private GridLayoutManager mCategoryLayoutManager;
@@ -55,9 +58,15 @@ public class MainActivity extends AppCompatActivity
     private static String mBaseUrl;
     private static String mAdminUsername;
     private static String mAdminPassword;
-    private static int mMaxProductToLod;
     private static long mNewCategoryId;
     private static long mBestsellerCategoryId;
+    private BroadcastReceiver mBroadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String message = intent.getStringExtra(DataLoaderService.MESSAGE);
+            Toast.makeText(MainActivity.this, message, Toast.LENGTH_LONG).show();
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,6 +89,10 @@ public class MainActivity extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
+        LocalBroadcastManager.getInstance(getApplicationContext())
+                .registerReceiver(mBroadcastReceiver,
+                        new IntentFilter(DataLoaderService.INTENT_ID));
+
 //        loadProducts();
 
         /**
@@ -97,6 +110,13 @@ public class MainActivity extends AppCompatActivity
 
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        LocalBroadcastManager.getInstance(getApplicationContext()).unregisterReceiver(mBroadcastReceiver);
+    }
+
     public static void initializeSettings(Context context, int rewourceId) {
         PreferenceManager.setDefaultValues(context, rewourceId, false);
 
@@ -104,7 +124,7 @@ public class MainActivity extends AppCompatActivity
         mBaseUrl = preferences.getString("sore_base_url", "");
         mAdminUsername = preferences.getString("admin_username", "");
         mAdminPassword = preferences.getString("admin_password", "");
-        mMaxProductToLod = Integer.parseInt(preferences.getString("max_product_to_load", "2000"));
+        mMaxProductToLoad = Integer.parseInt(preferences.getString("max_product_to_load", "2000"));
         mNewCategoryId = Long.parseLong(preferences.getString("new_prouct_category_id", "7"));
         mBestsellerCategoryId = Long.parseLong(preferences.getString("bestseller_category_id", "41"));
 
@@ -204,7 +224,6 @@ public class MainActivity extends AppCompatActivity
     }
 
     public static List<Product> searchProduct(String query) {
-        loadProducts();
 
         if (query.equals(ProductListActivity.SEARCH_ALL_PRODUCTS)) {
             return mProductList;
@@ -235,7 +254,6 @@ public class MainActivity extends AppCompatActivity
 
 
     public static List<Product> getProductsByCategoryIdSku(long categoryId) {
-        loadProducts();
 
 
         if (mCategoryProductCache.get(categoryId) == null) {
@@ -265,24 +283,43 @@ public class MainActivity extends AppCompatActivity
         return product;
     }
 
-    public static void loadProducts() {
+    public void loadProducts() {
         if (mProductList.size() == 0) {
-            List<Product> products;
-            ProductPage productPage = MainActivity.getMagentoAdminClient().extendedProducts()
-                    .page(1, mMaxProductToLod);
 
-            products = productPage.getItems();
-            if (products.size() > 0) {
-                mProductList = products;
-
-                for (Product product :
-                        mProductList) {
-                    mProductListBySku.put(product.getSku(), product);
-                }
-            }
-
+            /**
+             * Load products using intent service
+             */
+            Intent intent = new Intent(this, DataLoaderService.class);
+            startService(intent);
 
         }
     }
 
+    public static List<Product> getProductList() {
+        return mProductList;
+    }
+
+    public static void setProductList(List<Product> productList) {
+        mProductList = productList;
+    }
+
+    public static boolean isIsProductDataLoaded() {
+        return isProductDataLoaded;
+    }
+
+    public static void setIsProductDataLoaded(boolean isProductDataLoaded) {
+        MainActivity.isProductDataLoaded = isProductDataLoaded;
+    }
+
+    public static Map<String, Product> getProductListBySku() {
+        return mProductListBySku;
+    }
+
+    public static void setProductListBySku(Map<String, Product> productListBySku) {
+        mProductListBySku = productListBySku;
+    }
+
+    public static int getMaxProductToLoad() {
+        return mMaxProductToLoad;
+    }
 }
