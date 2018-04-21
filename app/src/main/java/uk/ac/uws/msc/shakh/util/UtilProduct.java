@@ -19,7 +19,7 @@ public class UtilProduct {
 
     public static void loadImage(ImageView imageView, Product product, String imageAttrinuteCode) {
         String imageFileName = getProductExtraAttributeValue(product, imageAttrinuteCode);
-        String imageUrl = MainActivity.getMagentoAdminClient().getBaseUri() + "/pub/media/catalog/product/" + imageFileName;
+        String imageUrl = MainActivity.getBaseUrl() + "/pub/media/catalog/product/" + imageFileName;
 
         if (imageAttrinuteCode.equals(PRODUCT_IMAGE_THUMBNAIL)) {
             Picasso.get()

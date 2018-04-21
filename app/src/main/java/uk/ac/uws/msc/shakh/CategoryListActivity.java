@@ -103,13 +103,12 @@ public class CategoryListActivity extends AppCompatActivity
         mIntentActionType = mIntent.getStringExtra(INTENT_ACTION);
 
         if (mIntentActionType.equals(ACTION_TYPE_VIEW_ALL_CATEGORY)) {
-            Category category = MainActivity.getMagentoAdminClient().categories().all();
+            Category category = MainActivity.getRootCategory();
             mCurrentCategory = category;
             mCategories = category.getChildren_data();
         } else if (mIntentActionType.equals(ACTION_TYPE_VIEW_CATEGORY)) {
             long categoryId = mIntent.getLongExtra(CATEGORY_ID, 0l);
-            Category category = MainActivity.getMagentoAdminClient().categories()
-                    .getCategoryByIdWithChildren(categoryId);
+            Category category = MainActivity.getCategoryByIdWithChildren(categoryId);
             mCategories = category.getChildren_data();
             mCurrentCategory = category;
         }
@@ -137,13 +136,7 @@ public class CategoryListActivity extends AppCompatActivity
         categotyRecycler.setLayoutManager(categoryLayoutManager);
         categotyRecycler.setAdapter(categoryRecyclerAdapter);
 
-//        if(mCurrentCategory.getProduct_count() < 1){
-//            mButtonShowProducts.setVisibility(View.INVISIBLE);
-//            mButtonShowProductsNewActivity.setVisibility(View.INVISIBLE);
-//        }else {
-//            mButtonShowProducts.setVisibility(View.INVISIBLE);
-//            mButtonShowProductsNewActivity.setVisibility(View.INVISIBLE);
-//        }
+
     }
 
     private void displeyProductList() {

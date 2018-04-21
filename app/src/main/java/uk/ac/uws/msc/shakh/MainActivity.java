@@ -26,8 +26,10 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.alibaba.fastjson.JSONArray;
 import com.github.chen0040.magento.models.Category;
 import com.github.chen0040.magento.models.CategoryProduct;
+import com.github.chen0040.magento.models.MagentoAttribute;
 import com.github.chen0040.magento.models.Product;
 
 import java.util.ArrayList;
@@ -55,7 +57,6 @@ public class MainActivity extends AppCompatActivity
     private static ExtendedAndroidMagentoClient magentoAdminClient;
     private static int mMaxProductToLoad;
     private static LruCache<Long, List<Product>> mCategoryProductCache = new LruCache<>(10 * 1024 * 1024);
-    private static LruCache<String, List<Product>> mSearchCache = new LruCache<>(10 * 1024 * 1024);
     private static String mBaseUrl;
     private static String mAdminUsername;
     private static String mAdminPassword;
@@ -66,14 +67,12 @@ public class MainActivity extends AppCompatActivity
         public void onReceive(Context context, Intent intent) {
             String message = intent.getStringExtra(DataLoaderService.MESSAGE);
             Toast.makeText(MainActivity.this, message, Toast.LENGTH_LONG).show();
-            mProgressBar.setVisibility(View.GONE);
             displayProductListForCategory(mNewCategoryId, R.id.recycler_view_new_collection);
             displayProductListForCategory(mBestsellerCategoryId, R.id.recycler_view_bestseller);
             displayCategoryList();
 
         }
     };
-    private ProgressBar mProgressBar;
 
 
     @Override
@@ -100,13 +99,6 @@ public class MainActivity extends AppCompatActivity
         if (mProductList.size() > 0) {
             isProductDataLoaded = true;
         }
-        mProgressBar = (ProgressBar) findViewById(R.id.progress_bar_main);
-
-        if (isProductDataLoaded) {
-            mProgressBar.setVisibility(View.INVISIBLE);
-        } else {
-            mProgressBar.setVisibility(View.VISIBLE);
-        }
 
 
         TextView categoryTitle = (TextView) findViewById(R.id.text_main_category_title);
@@ -125,7 +117,8 @@ public class MainActivity extends AppCompatActivity
 
         initializeSettings(this, R.xml.pref_general);
 
-        loadCatalogDataLive();
+        loadCatalogData(DataLoaderService.DATA_MODE_SAMPLE);
+
 
 
     }
@@ -282,25 +275,33 @@ public class MainActivity extends AppCompatActivity
     public static List<Product> getProductsByCategoryIdSku(long categoryId) {
 
 
-        if (mCategoryProductCache.get(categoryId) == null || mCategoryProductCache.get(categoryId).size() < 1) {
-            List<CategoryProduct> categoryProducts = MainActivity.getMagentoAdminClient()
-                    .extendedCategories().getProductsInCategory(categoryId);
+        List<Product> products = new ArrayList<>();
 
-            List<Product> products = new ArrayList<>();
+        for (Product product : mProductList) {
+            for (MagentoAttribute magentoAttr : product.getCustom_attributes()) {
+                if (magentoAttr.getAttribute_code().equals("category_ids")) {
 
-            for (CategoryProduct categoryProduct :
-                    categoryProducts) {
-                Product product = mProductListBySku.get(categoryProduct.getSku());
-                if (product != null) {
-                    products.add(product);
+                    String strCatId = "" + categoryId;
+
+                    //long[] catIds = (long[]) magentoAttr.getValue();
+
+                    JSONArray catIds = (JSONArray) magentoAttr.getValue();
+
+                    for (Object catId : catIds) {
+
+                        if (strCatId.equals(catId.toString())) {
+                            products.add(product);
+                            break;
+                        }
+                    }
+
                 }
             }
 
-            mCategoryProductCache.put(categoryId, products);
         }
 
+        return products;
 
-        return mCategoryProductCache.get(categoryId);
     }
 
     public static Product getProductBySku(String sku) {
@@ -309,7 +310,7 @@ public class MainActivity extends AppCompatActivity
         return product;
     }
 
-    private Category getCategoryById(Category x, long id) {
+    private static Category getCategoryById(Category x, long id) {
         if (x.getId() == id) {
             return x;
         }
@@ -322,11 +323,11 @@ public class MainActivity extends AppCompatActivity
         return null;
     }
 
-    public Category getCategoryByIdWithChildren(long id) {
+    public static Category getCategoryByIdWithChildren(long id) {
         return getCategoryById(mRootCategory, id);
     }
 
-    public void loadCatalogDataLive() {
+    public void loadCatalogData(String dataMode) {
         if (mProductList.size() == 0 || mRootCategory == null || isUsingCacheData) {
             Toast.makeText(getApplicationContext(), "Please wait. Loading data", Toast.LENGTH_LONG).show();
             Toast.makeText(getApplicationContext(), "Please wait. Loading data", Toast.LENGTH_LONG).show();
@@ -334,6 +335,8 @@ public class MainActivity extends AppCompatActivity
              * Load products using intent service
              */
             Intent intent = new Intent(this, DataLoaderService.class);
+            intent.putExtra(DataLoaderService.DATA_MODE, dataMode);
+
             startService(intent);
 
         }
@@ -383,5 +386,9 @@ public class MainActivity extends AppCompatActivity
 
     public static void setIsUsingCacheData(boolean isUsingCacheData) {
         MainActivity.isUsingCacheData = isUsingCacheData;
+    }
+
+    public static String getBaseUrl() {
+        return mBaseUrl;
     }
 }

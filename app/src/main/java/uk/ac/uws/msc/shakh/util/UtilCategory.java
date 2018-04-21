@@ -26,7 +26,7 @@ public class UtilCategory {
 //        }
 //    }
 
-    public static void loadImage(ImageView imageView, Category category, String imageAttributeCode) {
-        String url = MainActivity.getMagentoAdminClient().getBaseUri();
-    }
+//    public static void loadImage(ImageView imageView, Category category, String imageAttributeCode) {
+//        String url = MainActivity.getMagentoAdminClient().getBaseUri();
+//    }
 }
