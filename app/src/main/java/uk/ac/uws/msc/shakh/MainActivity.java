@@ -22,6 +22,7 @@ import android.util.LruCache;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -67,12 +68,21 @@ public class MainActivity extends AppCompatActivity
         public void onReceive(Context context, Intent intent) {
             String message = intent.getStringExtra(DataLoaderService.MESSAGE);
             Toast.makeText(MainActivity.this, message, Toast.LENGTH_LONG).show();
+
+            if (mDataMode.equals(DataLoaderService.DATA_MODE_SAMPLE)) {
+                mTvDataStatus.setText("Using sample date");
+            } else if (mDataMode.equals(DataLoaderService.DATA_MODE_LIVE)) {
+                mTvDataStatus.setText("Using live data");
+            }
+
             displayProductListForCategory(mNewCategoryId, R.id.recycler_view_new_collection);
             displayProductListForCategory(mBestsellerCategoryId, R.id.recycler_view_bestseller);
             displayCategoryList();
 
         }
     };
+    private TextView mTvDataStatus;
+    private String mDataMode;
 
 
     @Override
@@ -108,6 +118,19 @@ public class MainActivity extends AppCompatActivity
                 .registerReceiver(mBroadcastReceiver,
                         new IntentFilter(DataLoaderService.INTENT_ID));
 
+        mTvDataStatus = (TextView) findViewById(R.id.tv_data_status);
+
+
+        Button btnLoadLiveData = (Button) findViewById(R.id.btn_load_live_data);
+        btnLoadLiveData.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                loadCatalogData(DataLoaderService.DATA_MODE_LIVE);
+                mTvDataStatus.setText("Please wait. Loading live catalog");
+
+            }
+        });
+
 
         /**
          * This is important. If policy is not set, network communication fails.
@@ -118,6 +141,7 @@ public class MainActivity extends AppCompatActivity
         initializeSettings(this, R.xml.pref_general);
 
         loadCatalogData(DataLoaderService.DATA_MODE_SAMPLE);
+        mTvDataStatus.setText("Please wail. Sample Loading catalog");
 
 
 
@@ -328,9 +352,9 @@ public class MainActivity extends AppCompatActivity
     }
 
     public void loadCatalogData(String dataMode) {
+        mDataMode = dataMode;
         if (mProductList.size() == 0 || mRootCategory == null || isUsingCacheData) {
-            Toast.makeText(getApplicationContext(), "Please wait. Loading data", Toast.LENGTH_LONG).show();
-            Toast.makeText(getApplicationContext(), "Please wait. Loading data", Toast.LENGTH_LONG).show();
+
             /**
              * Load products using intent service
              */

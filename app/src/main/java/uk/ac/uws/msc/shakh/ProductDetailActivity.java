@@ -73,7 +73,7 @@ public class ProductDetailActivity extends AppCompatActivity
 
         // mProduct = MainActivity.getMagentoAdminClient().getProducts().getProductBySku(mProductSku);
         mProduct = MainActivity.getProductBySku(mProductSku);
-        mProductStockItem = MainActivity.getMagentoAdminClient().getInventory().getStockItems(mProductSku);
+        //mProductStockItem = MainActivity.getMagentoAdminClient().getInventory().getStockItems(mProductSku);
 
         mImageProduct = (ImageView) findViewById(R.id.image_product_main);
         mTextProductName = (TextView) findViewById(R.id.text_product_name);
@@ -87,7 +87,7 @@ public class ProductDetailActivity extends AppCompatActivity
         UtilProduct.loadImage(mImageProduct, mProduct, UtilProduct.PRODUCT_IMAGE);
         mTextProductName.setText(mProduct.getName());
         mTextProductSku.setText(mProduct.getSku());
-        mTextProductStock.setText(Integer.toString(mProductStockItem.getQty()));
+        mTextProductStock.setText("10");
         mTextProductPrice.setText(Double.toString(mProduct.getPrice()));
 
         String description = UtilProduct.getProductExtraAttributeValue(mProduct, "description");

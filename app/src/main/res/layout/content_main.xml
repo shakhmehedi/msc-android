@@ -25,6 +25,17 @@
 
 
             <TextView
+                android:id="@+id/tv_data_status"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <Button
+                android:id="@+id/btn_load_live_data"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Load Live Data" />
+
+            <TextView
                 android:id="@+id/text_main_category_title"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

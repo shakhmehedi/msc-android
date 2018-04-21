@@ -6,14 +6,4 @@
         android:icon="@android:drawable/ic_menu_search"
         android:title="Search"
         app:showAsAction="always" />
-    <item
-        android:id="@+id/action_prev"
-        android:icon="@android:drawable/ic_media_previous"
-        android:title="Prevvious"
-        app:showAsAction="always" />
-    <item
-        android:id="@+id/action_next"
-        android:icon="@android:drawable/ic_media_next"
-        android:title="Next"
-        app:showAsAction="always" />
 </menu>
