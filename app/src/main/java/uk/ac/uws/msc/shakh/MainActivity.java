@@ -48,14 +48,12 @@ public class MainActivity extends AppCompatActivity
     private static List<Product> mProductList = new ArrayList<>();
     private static boolean isProductDataLoaded = false;
     public static Map<String, Product> mProductListBySku = new HashMap<String, Product>();
+    private static Category mRootCategory;
+    private static boolean isUsingCacheData = true;
 
     private static ExtendedAndroidMagentoClient magentoCustomerClient;
     private static ExtendedAndroidMagentoClient magentoAdminClient;
     private static int mMaxProductToLoad;
-    private CategoryRecyclerAdapter mCategoryRecyclerAdapter;
-    private RecyclerView mCategotyRecycler;
-    private GridLayoutManager mCategoryLayoutManager;
-    private List<Category> mCategories;
     private static LruCache<Long, List<Product>> mCategoryProductCache = new LruCache<>(10 * 1024 * 1024);
     private static LruCache<String, List<Product>> mSearchCache = new LruCache<>(10 * 1024 * 1024);
     private static String mBaseUrl;
@@ -71,9 +69,12 @@ public class MainActivity extends AppCompatActivity
             mProgressBar.setVisibility(View.GONE);
             displayProductListForCategory(mNewCategoryId, R.id.recycler_view_new_collection);
             displayProductListForCategory(mBestsellerCategoryId, R.id.recycler_view_bestseller);
+            displayCategoryList();
+
         }
     };
     private ProgressBar mProgressBar;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -115,7 +116,6 @@ public class MainActivity extends AppCompatActivity
                 .registerReceiver(mBroadcastReceiver,
                         new IntentFilter(DataLoaderService.INTENT_ID));
 
-//        loadProducts();
 
         /**
          * This is important. If policy is not set, network communication fails.
@@ -125,8 +125,7 @@ public class MainActivity extends AppCompatActivity
 
         initializeSettings(this, R.xml.pref_general);
 
-        loadProducts();
-        displayCategoryList();
+        loadCatalogDataLive();
 
 
     }
@@ -171,14 +170,14 @@ public class MainActivity extends AppCompatActivity
 
     private void displayCategoryList() {
 
-        Category category = MainActivity.getMagentoAdminClient().categories().all();
-        mCategories = category.getChildren_data();
-        mCategoryRecyclerAdapter = new CategoryRecyclerAdapter(getApplicationContext(), mCategories);
-        mCategotyRecycler = (RecyclerView) findViewById(R.id.recycler_view_main_activity_category_list);
-        mCategoryLayoutManager = new GridLayoutManager(this, 2);
+        //Category category = MainActivity.getMagentoAdminClient().categories().all();
+        List<Category> categories = mRootCategory.getChildren_data();
+        CategoryRecyclerAdapter categoryRecyclerAdapter = new CategoryRecyclerAdapter(getApplicationContext(), categories);
+        RecyclerView categotyRecycler = (RecyclerView) findViewById(R.id.recycler_view_main_activity_category_list);
+        GridLayoutManager categoryLayoutManager = new GridLayoutManager(this, 2);
 
-        mCategotyRecycler.setLayoutManager(mCategoryLayoutManager);
-        mCategotyRecycler.setAdapter(mCategoryRecyclerAdapter);
+        categotyRecycler.setLayoutManager(categoryLayoutManager);
+        categotyRecycler.setAdapter(categoryRecyclerAdapter);
     }
 
 
@@ -310,8 +309,25 @@ public class MainActivity extends AppCompatActivity
         return product;
     }
 
-    public void loadProducts() {
-        if (mProductList.size() == 0) {
+    private Category getCategoryById(Category x, long id) {
+        if (x.getId() == id) {
+            return x;
+        }
+        for (Category child : x.getChildren_data()) {
+            Category x_ = getCategoryById(child, id);
+            if (x_ != null) {
+                return x_;
+            }
+        }
+        return null;
+    }
+
+    public Category getCategoryByIdWithChildren(long id) {
+        return getCategoryById(mRootCategory, id);
+    }
+
+    public void loadCatalogDataLive() {
+        if (mProductList.size() == 0 || mRootCategory == null || isUsingCacheData) {
             Toast.makeText(getApplicationContext(), "Please wait. Loading data", Toast.LENGTH_LONG).show();
             Toast.makeText(getApplicationContext(), "Please wait. Loading data", Toast.LENGTH_LONG).show();
             /**
@@ -321,6 +337,7 @@ public class MainActivity extends AppCompatActivity
             startService(intent);
 
         }
+
     }
 
     public static List<Product> getProductList() {
@@ -349,5 +366,22 @@ public class MainActivity extends AppCompatActivity
 
     public static int getMaxProductToLoad() {
         return mMaxProductToLoad;
+    }
+
+
+    public static Category getRootCategory() {
+        return mRootCategory;
+    }
+
+    public static void setRootCategory(Category rootCategory) {
+        mRootCategory = rootCategory;
+    }
+
+    public static boolean isIsUsingCacheData() {
+        return isUsingCacheData;
+    }
+
+    public static void setIsUsingCacheData(boolean isUsingCacheData) {
+        MainActivity.isUsingCacheData = isUsingCacheData;
     }
 }

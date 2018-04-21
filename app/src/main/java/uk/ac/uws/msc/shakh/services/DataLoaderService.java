@@ -6,6 +6,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.content.LocalBroadcastManager;
 import android.widget.Toast;
 
+import com.github.chen0040.magento.models.Category;
 import com.github.chen0040.magento.models.Product;
 import com.github.chen0040.magento.models.ProductPage;
 
@@ -40,8 +41,11 @@ public class DataLoaderService extends IntentService {
 
         products = productPage.getItems();
         if (products.size() > 0) {
+            MainActivity.getProductList().clear();
+
             MainActivity.getProductList().addAll(products);
 
+            MainActivity.getProductListBySku().clear();
             for (Product product :
                     products) {
                 MainActivity.getProductListBySku().put(product.getSku(), product);
@@ -57,6 +61,20 @@ public class DataLoaderService extends IntentService {
             intentBroadcast.putExtra(MESSAGE, "Failed to load product data");
 
         }
+
+        Category category = MainActivity.getMagentoAdminClient().extendedCategories().all();
+
+        if (category == null) {
+            intentBroadcast.putExtra(STATUS, STATUS_FAILED);
+            intentBroadcast.putExtra(MESSAGE, "Failed to load category data");
+        } else {
+            MainActivity.setRootCategory(category);
+            intentBroadcast.putExtra(STATUS, STATUS_SUCCESS);
+
+            intentBroadcast.putExtra(MESSAGE, "Product data loaded successfully");
+        }
+
+        MainActivity.setIsUsingCacheData(false);
 
         localBroadcastManager.sendBroadcast(intentBroadcast);
     }
