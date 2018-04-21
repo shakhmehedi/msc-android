@@ -191,9 +191,8 @@ public class MainActivity extends AppCompatActivity
         List<Category> categories = mRootCategory.getChildren_data();
         CategoryRecyclerAdapter categoryRecyclerAdapter = new CategoryRecyclerAdapter(getApplicationContext(), categories);
         RecyclerView categotyRecycler = (RecyclerView) findViewById(R.id.recycler_view_main_activity_category_list);
-        GridLayoutManager categoryLayoutManager = new GridLayoutManager(this, 2);
-
-        categotyRecycler.setLayoutManager(categoryLayoutManager);
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(MainActivity.this);
+        categotyRecycler.setLayoutManager(linearLayoutManager);
         categotyRecycler.setAdapter(categoryRecyclerAdapter);
     }
 

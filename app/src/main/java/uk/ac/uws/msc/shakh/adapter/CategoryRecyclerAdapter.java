@@ -65,7 +65,6 @@ public class CategoryRecyclerAdapter extends RecyclerView.Adapter<CategoryRecycl
             super(itemView);
 
             mTextCategoryName = (TextView) itemView.findViewById(R.id.text_category_name);
-            mImageCategory = (ImageView) itemView.findViewById(R.id.image_category);
 
             Category category = mCategories.get(mCurrentPosition);
 
